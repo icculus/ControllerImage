@@ -166,8 +166,11 @@ typedef struct NSVGimage
 	NSVGshape* shapes;			// Linked list of shapes in the image.
 } NSVGimage;
 
+
+#ifndef NANOSVG_SKIP_STDIO  // ControllerImage
 // Parses SVG file from a file, returns SVG image as paths.
 NSVGimage* nsvgParseFromFile(const char* filename, const char* units, float dpi);
+#endif  // ControllerImage
 
 // Parses SVG file from a null terminated string, returns SVG image as paths.
 // Important note: changes the string.
@@ -187,10 +190,12 @@ void nsvgDelete(NSVGimage* image);
 
 #ifdef NANOSVG_IMPLEMENTATION
 
+#ifndef NANOSVG_SKIP_STDC_HEADERS  // ControllerImage
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#endif  // ControllerImage
 
 #define NSVG_PI (3.14159265358979323846264338327f)
 #define NSVG_KAPPA90 (0.5522847493f)	// Length proportional to radius of a cubic bezier handle for 90deg arcs.
@@ -3018,6 +3023,7 @@ NSVGimage* nsvgParse(char* input, const char* units, float dpi)
 	return ret;
 }
 
+#ifndef NANOSVG_SKIP_STDIO  // ControllerImage
 NSVGimage* nsvgParseFromFile(const char* filename, const char* units, float dpi)
 {
 	FILE* fp = NULL;
@@ -3046,6 +3052,7 @@ error:
 	if (image) nsvgDelete(image);
 	return NULL;
 }
+#endif  // ControllerImage
 
 NSVGpath* nsvgDuplicatePath(NSVGpath* p)
 {
