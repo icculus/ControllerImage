@@ -439,7 +439,7 @@ static SDL_Surface *RasterizeImage(NSVGrasterizer *rasterizer, NSVGimage *image,
         return NULL;
     }
 
-    SDL_Surface *surface = SDL_CreateSurface(w, h, SDL_PIXELFORMAT_RGBA8888);
+    SDL_Surface *surface = SDL_CreateSurface(w, h, SDL_PIXELFORMAT_ABGR8888);
     if (!surface) {
         return NULL;
     }
