@@ -73,8 +73,8 @@ typedef struct ControllerImage_DeviceInfo
 
 
 static SDL_PropertiesID DeviceGuidMap = 0;
-static char *string_buffer = NULL;
-static size_t string_buffer_len = 0;
+static char **StringCache = NULL;
+static int NumCachedStrings = 0;
 
 const SDL_version *ControllerImage_LinkedVersion(void)
 {
@@ -92,15 +92,19 @@ int ControllerImage_Init(void)
     if (!DeviceGuidMap) {
         return -1;
     }
+    return 0;
 }
 
 void ControllerImage_Quit(void)
 {
     SDL_DestroyProperties(DeviceGuidMap);
     DeviceGuidMap = 0;
-    SDL_free(string_buffer);
-    string_buffer = NULL;
-    string_buffer_len = 0;
+    for (int i = 0; i < NumCachedStrings; i++) {
+        SDL_free(StringCache[i]);
+    }
+    SDL_free(StringCache);
+    StringCache = NULL;
+    NumCachedStrings = 0;
 }
 
 static SDL_bool readstr(const Uint8 **_ptr, size_t *_buflen, char **_str)
@@ -110,16 +114,32 @@ static SDL_bool readstr(const Uint8 **_ptr, size_t *_buflen, char **_str)
     for (size_t i = 0; i < total; i++) {
         if (ptr[i] == '\0') {   // found end of string?
             i++;
-            void *expanded = SDL_realloc(string_buffer, string_buffer_len + i);
-            if (!expanded) {
-                SDL_OutOfMemory();
-                return SDL_FALSE;
+
+            char *finalstr = NULL;
+            for (int j = 0; j < NumCachedStrings; j++) {
+                if (SDL_strcmp(StringCache[j], ptr) == 0) {
+                    finalstr = StringCache[j];
+                    break;
+                }
             }
-            string_buffer = (char *) expanded;
-            char *dst = &string_buffer[string_buffer_len];
-            SDL_memcpy(dst, *_ptr, i);
-            string_buffer_len += i;
-            *_str = dst;
+
+            if (!finalstr) {
+                void *expanded = SDL_realloc(StringCache, (NumCachedStrings + 1) * sizeof (char *));
+                if (!expanded) {
+                    SDL_OutOfMemory();
+                    return SDL_FALSE;
+                }
+                StringCache = (char **) expanded;
+                finalstr = SDL_strdup(ptr);
+                if (!finalstr) {
+                    SDL_OutOfMemory();
+                    return SDL_FALSE;
+                }
+
+                StringCache[NumCachedStrings++] = finalstr;
+            }
+
+            *_str = finalstr;
             *_buflen -= i;
             *_ptr += i;
             return SDL_TRUE;
@@ -174,7 +194,7 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
         return SDL_OutOfMemory();
     }
 
-    for (Uint16 i = 0; num_strings; i++) {
+    for (Uint16 i = 0; i < num_strings; i++) {
         if (!readstr(&ptr, &buflen, &strings[i])) {
             goto failed;
         }
@@ -237,7 +257,7 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
         }
     }
 
-    SDL_free(strings);  // the array! the actual strings are stored in string_buffer!
+    SDL_free(strings);  // the array! the actual strings are stored in StringCache!
     return 0;
 
 bogus_data:
