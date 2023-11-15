@@ -342,29 +342,8 @@ static void CollectImages(ControllerImage_DeviceInfo *info, const char **axes, c
     }
 }
 
-ControllerImage_Device *ControllerImage_CreateGamepadDeviceByInstance(SDL_JoystickID jsid)
+static ControllerImage_Device *CreateGamepadDeviceFromInfo(ControllerImage_DeviceInfo *info)
 {
-    const SDL_JoystickGUID guid = SDL_GetGamepadInstanceGUID(jsid);
-    if (SDL_memcmp(&guid, &zeroguid, sizeof (SDL_GUID)) == 0) {
-        return NULL;
-    }
-
-    char guidstr[33];
-    SDL_GUIDToString(guid, guidstr, sizeof (guidstr));
-
-    ControllerImage_DeviceInfo *info = (ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceGuidMap, guidstr, NULL);
-    if (!info) {
-        // since these are the most common things, we might have a fallback specific to this device type...
-        const char *typestr = SDL_GetGamepadStringForType(SDL_GetGamepadInstanceType(jsid));
-        if (typestr) {
-            info = (ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceGuidMap, typestr, NULL);
-        }
-    }
-
-    if (!info) {
-        info = (ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceGuidMap, "xbox360", NULL);  // if all else fails, this is probably most likely to match...
-    }
-
     if (!info) {
         SDL_SetError("Couldn't find any usable images for this device! Maybe you didn't load anything?");
         return NULL;
@@ -413,6 +392,37 @@ ControllerImage_Device *ControllerImage_CreateGamepadDeviceByInstance(SDL_Joysti
     return device;
 }
 
+ControllerImage_Device *ControllerImage_CreateGamepadDeviceByIdString(const char *str)
+{
+    return CreateGamepadDeviceFromInfo((ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceGuidMap, str, NULL));
+}
+
+ControllerImage_Device *ControllerImage_CreateGamepadDeviceByInstance(SDL_JoystickID jsid)
+{
+    const SDL_JoystickGUID guid = SDL_GetGamepadInstanceGUID(jsid);
+    if (SDL_memcmp(&guid, &zeroguid, sizeof (SDL_GUID)) == 0) {
+        return NULL;
+    }
+
+    char guidstr[33];
+    SDL_GUIDToString(guid, guidstr, sizeof (guidstr));
+
+    ControllerImage_DeviceInfo *info = (ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceGuidMap, guidstr, NULL);
+    if (!info) {
+        // since these are the most common things, we might have a fallback specific to this device type...
+        const char *typestr = SDL_GetGamepadStringForType(SDL_GetGamepadInstanceType(jsid));
+        if (typestr) {
+            info = (ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceGuidMap, typestr, NULL);
+        }
+    }
+
+    if (!info) {
+        info = (ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceGuidMap, "xbox360", NULL);  // if all else fails, this is probably most likely to match...
+    }
+
+    return CreateGamepadDeviceFromInfo(info);
+}
+
 ControllerImage_Device *ControllerImage_CreateGamepadDevice(SDL_Gamepad *gamepad)
 {
     const SDL_JoystickID jsid = SDL_GetGamepadInstanceID(gamepad);
@@ -444,8 +454,28 @@ static SDL_Surface *RasterizeImage(NSVGrasterizer *rasterizer, NSVGimage *image,
         return NULL;
     }
 
+    const float want_aspect = (float)w / h;
+    const float real_aspect = (float)image->width / image->height;
+    float scale, xoff, yoff;
+
+    if (SDL_fabs(want_aspect - real_aspect) < 0.0001) {
+        // The aspect ratios are the same, just scale appropriately
+        scale = (float)w / image->width;
+        xoff = yoff = 0.0f;
+    } else if (want_aspect > real_aspect) {
+        // We want a wider aspect ratio than is available - letterbox it
+        scale = (float)w / image->width;
+        xoff = 0.0f;
+        yoff = ((image->height * scale) - h) / 2;
+    } else {
+        // We want a narrower aspect ratio than is available - use side-bars
+        scale = (float)h / image->height;
+        xoff = ((image->width * scale) - w) / 2;
+        yoff = 0.0f;
+    }
+
     SDL_assert(rasterizer != NULL);
-	nsvgRasterize(rasterizer, image, 0, 0, 1, (unsigned char *) surface->pixels, w, h, w * 4);
+	nsvgRasterize(rasterizer, image, xoff, yoff, scale, (unsigned char *) surface->pixels, w, h, w * 4);
     return surface;
 }
 

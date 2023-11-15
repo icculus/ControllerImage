@@ -47,6 +47,7 @@ extern DECLSPEC int SDLCALL ControllerImage_AddDataFromFile(const char *fname);
 
 extern DECLSPEC ControllerImage_Device * SDLCALL ControllerImage_CreateGamepadDevice(SDL_Gamepad *gamepad);
 extern DECLSPEC ControllerImage_Device * SDLCALL ControllerImage_CreateGamepadDeviceByInstance(SDL_JoystickID jsid);
+extern DECLSPEC ControllerImage_Device * SDLCALL ControllerImage_CreateGamepadDeviceByIdString(const char *str);
 
 extern DECLSPEC void SDLCALL ControllerImage_DestroyDevice(ControllerImage_Device *device);
 
