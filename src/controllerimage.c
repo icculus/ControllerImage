@@ -308,7 +308,17 @@ static void CollectImages(ControllerImage_DeviceInfo *info, const char **axes, c
                 axes[axis] = item->svg;
             }
         } else {
-            const int button = (int) SDL_GetGamepadButtonFromString(item->type);
+            const char *typestr = item->type;
+            if (SDL_strcmp(typestr, "n") == 0) {
+                typestr = "y";
+            } else if (SDL_strcmp(typestr, "s") == 0) {
+                typestr = "a";
+            } else if (SDL_strcmp(typestr, "w") == 0) {
+                typestr = "x";
+            } else if (SDL_strcmp(typestr, "e") == 0) {
+                typestr = "b";
+            }
+            const int button = (int) SDL_GetGamepadButtonFromString(typestr);
             if (button != SDL_GAMEPAD_BUTTON_INVALID) {
                 SDL_assert(button >= 0);
                 if (button < SDL_GAMEPAD_BUTTON_MAX) {
