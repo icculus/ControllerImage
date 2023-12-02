@@ -278,31 +278,8 @@ int ControllerImage_AddDataFromRWops(SDL_RWops *rwops, SDL_bool freerw)
         return SDL_InvalidParamError("rwops");
     }
 
-    while (SDL_TRUE) {
-        const size_t chunksize = 16 * 1024;
-        void *ptr = SDL_realloc(buf, buflen + chunksize);
-        if (!ptr) {
-            SDL_free(buf);
-            retval = SDL_OutOfMemory();
-            break;
-        }
-        buf = (Uint8 *) ptr;
-        const size_t br = SDL_RWread(rwops, buf + buflen, chunksize);
-        buflen += br;
-        // !!! FIXME: SDL should really report errors here!
-        if (br < chunksize) {
-            break;
-        }
-    }
-
-    if (freerw) {
-        SDL_RWclose(rwops);
-    }
-
-    if (retval == 0) {
-        retval = ControllerImage_AddData(buf, buflen);
-    }
-
+    buf = (Uint8 *) SDL_LoadFile_RW(rwops, &buflen, freerw);
+    retval = buf ? ControllerImage_AddData(buf, buflen) : -1;
     SDL_free(buf);
     return retval;
 }
