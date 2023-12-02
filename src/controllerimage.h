@@ -51,8 +51,8 @@ extern DECLSPEC ControllerImage_Device * SDLCALL ControllerImage_CreateGamepadDe
 
 extern DECLSPEC void SDLCALL ControllerImage_DestroyDevice(ControllerImage_Device *device);
 
-extern DECLSPEC SDL_Surface *ControllerImage_CreateSurfaceForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis, int w, int h);
-extern DECLSPEC SDL_Surface *ControllerImage_CreateSurfaceForButton(ControllerImage_Device *device, SDL_GamepadButton button, int w, int h);
+extern DECLSPEC SDL_Surface *ControllerImage_CreateSurfaceForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis, int size);
+extern DECLSPEC SDL_Surface *ControllerImage_CreateSurfaceForButton(ControllerImage_Device *device, SDL_GamepadButton button, int size);
 
 extern DECLSPEC void SDLCALL ControllerImage_Quit(void);
 

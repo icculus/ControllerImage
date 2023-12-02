@@ -429,60 +429,42 @@ void ControllerImage_DestroyDevice(ControllerImage_Device *device)
     }
 }
 
-static SDL_Surface *RasterizeImage(NSVGrasterizer *rasterizer, NSVGimage *image, int w, int h)
+static SDL_Surface *RasterizeImage(NSVGrasterizer *rasterizer, NSVGimage *image, int size)
 {
     if (!image) {
         SDL_SetError("No image available");  // !!! FIXME: default to some xbox thing?
         return NULL;
     }
 
-    SDL_Surface *surface = SDL_CreateSurface(w, h, SDL_PIXELFORMAT_ABGR8888);
+    SDL_Surface *surface = SDL_CreateSurface(size, size, SDL_PIXELFORMAT_ABGR8888);
     if (!surface) {
         return NULL;
     }
 
-    const float want_aspect = (float)w / h;
-    const float real_aspect = (float)image->width / image->height;
-    float scale, xoff, yoff;
-
-    if (SDL_fabs(want_aspect - real_aspect) < 0.0001) {
-        // The aspect ratios are the same, just scale appropriately
-        scale = (float)w / image->width;
-        xoff = yoff = 0.0f;
-    } else if (want_aspect > real_aspect) {
-        // We want a wider aspect ratio than is available - letterbox it
-        scale = (float)w / image->width;
-        xoff = 0.0f;
-        yoff = ((image->height * scale) - h) / 2;
-    } else {
-        // We want a narrower aspect ratio than is available - use side-bars
-        scale = (float)h / image->height;
-        xoff = ((image->width * scale) - w) / 2;
-        yoff = 0.0f;
-    }
+    const float scale = (float)size / image->width;
 
     SDL_assert(rasterizer != NULL);
-	nsvgRasterize(rasterizer, image, xoff, yoff, scale, (unsigned char *) surface->pixels, w, h, w * 4);
+	nsvgRasterize(rasterizer, image, 0.0f, 0.0f, scale, (unsigned char *) surface->pixels, size, size, size * 4);
     return surface;
 }
 
-SDL_Surface *ControllerImage_CreateSurfaceForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis, int w, int h)
+SDL_Surface *ControllerImage_CreateSurfaceForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis, int size)
 {
     const int iaxis = (int) axis;
     if ((iaxis < 0) || (iaxis >= SDL_GAMEPAD_AXIS_MAX)) {
         SDL_InvalidParamError("axis");
         return NULL;
     }
-    return RasterizeImage(device->rasterizer, device->axes[iaxis], w, h);
+    return RasterizeImage(device->rasterizer, device->axes[iaxis], size);
 }
 
-SDL_Surface *ControllerImage_CreateSurfaceForButton(ControllerImage_Device *device, SDL_GamepadButton button, int w, int h)
+SDL_Surface *ControllerImage_CreateSurfaceForButton(ControllerImage_Device *device, SDL_GamepadButton button, int size)
 {
     const int ibutton = (int) button;
     if ((ibutton < 0) || (ibutton >= SDL_GAMEPAD_BUTTON_MAX)) {
         SDL_InvalidParamError("button");
         return NULL;
     }
-    return RasterizeImage(device->rasterizer, device->buttons[ibutton], w, h);
+    return RasterizeImage(device->rasterizer, device->buttons[ibutton], size);
 }
 
