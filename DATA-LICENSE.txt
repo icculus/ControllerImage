@@ -1,0 +1,4 @@
+All SVG images provided here are built by/for this project from scratch and
+are offered into the public domain. Use them how you like, without
+restrictions, either as part of this project or something totally unrelated.
+
