@@ -76,5 +76,14 @@ and offer artwork in the public domain, please get in touch.
 
 ## How do I get the data file I need?
 
-To be written (literally, the code is yet to be written, stay tuned!).
+Build the library. It builds a "make-controllerimage-data" executable. Run
+that in the root of the source tree (where the "data" directory is), and it'll
+produce a "controllerimages.bin" file. This is the data you pass to the
+library.
+
+The library is designed to let you add to and replace existing data with
+multiple files, so you can add more files that just fix things and add new
+controllers without having to replace earlier data files completely in a
+patch, and load them in order to get the same results, but a tool to generate
+subsets of data hasn't been written yet.
 
