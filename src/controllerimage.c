@@ -55,6 +55,8 @@ typedef struct ControllerImage_Device
     // any of these might be NULL!
     NSVGimage *axes[SDL_GAMEPAD_AXIS_MAX];
     NSVGimage *buttons[SDL_GAMEPAD_BUTTON_MAX];
+    char *axes_svg[SDL_GAMEPAD_AXIS_MAX];
+    char *buttons_svg[SDL_GAMEPAD_BUTTON_MAX];
     NSVGrasterizer *rasterizer;
 } ControllerImage_Device;
 
@@ -290,7 +292,7 @@ int ControllerImage_AddDataFromFile(const char *fname)
     return rwops ? ControllerImage_AddDataFromRWops(rwops, SDL_TRUE) : -1;
 }
 
-static void CollectImages(ControllerImage_DeviceInfo *info, const char **axes, const char **buttons)
+static void CollectImages(ControllerImage_DeviceInfo *info, char **axes, char **buttons)
 {
     if (!info) {
         return;
@@ -305,7 +307,7 @@ static void CollectImages(ControllerImage_DeviceInfo *info, const char **axes, c
         if (axis != SDL_GAMEPAD_AXIS_INVALID) {
             SDL_assert(axis >= 0);
             if (axis < SDL_GAMEPAD_AXIS_MAX) {
-                axes[axis] = item->svg;
+                axes[axis] = SDL_strdup(item->svg);
             }
         } else {
             const char *typestr = item->type;
@@ -322,7 +324,7 @@ static void CollectImages(ControllerImage_DeviceInfo *info, const char **axes, c
             if (button != SDL_GAMEPAD_BUTTON_INVALID) {
                 SDL_assert(button >= 0);
                 if (button < SDL_GAMEPAD_BUTTON_MAX) {
-                    buttons[button] = item->svg;
+                    buttons[button] = SDL_strdup(item->svg);
                 }
             }
         }
@@ -336,18 +338,13 @@ static ControllerImage_Device *CreateGamepadDeviceFromInfo(ControllerImage_Devic
         return NULL;
     }
 
-    const char *axes[SDL_GAMEPAD_AXIS_MAX];
-    const char *buttons[SDL_GAMEPAD_BUTTON_MAX];
-
-    SDL_zeroa(axes);
-    SDL_zeroa(buttons);
-    CollectImages(info, axes, buttons);
-
     ControllerImage_Device *device = SDL_calloc(1, sizeof (ControllerImage_Device));
     if (!device) {
         SDL_OutOfMemory();
         return NULL;
     }
+
+    CollectImages(info, device->axes_svg, device->buttons_svg);
 
     device->rasterizer = nsvgCreateRasterizer();
     if (!device->rasterizer) {
@@ -357,8 +354,8 @@ static ControllerImage_Device *CreateGamepadDeviceFromInfo(ControllerImage_Devic
     }
 
     for (int i = 0; i < SDL_GAMEPAD_AXIS_MAX; i++) {
-        if (axes[i]) {
-            char *cpy = SDL_strdup(axes[i]);  // nsvgParse mangles the string!
+        if (device->axes_svg[i]) {
+            char *cpy = SDL_strdup(device->axes_svg[i]);  // nsvgParse mangles the string!
             if (cpy) {
                 device->axes[i] = nsvgParse(cpy, "px", 96.0f);
                 SDL_free(cpy);
@@ -367,8 +364,8 @@ static ControllerImage_Device *CreateGamepadDeviceFromInfo(ControllerImage_Devic
     }
 
     for (int i = 0; i < SDL_GAMEPAD_BUTTON_MAX; i++) {
-        if (buttons[i]) {
-            char *cpy = SDL_strdup(buttons[i]);  // nsvgParse mangles the string!
+        if (device->buttons_svg[i]) {
+            char *cpy = SDL_strdup(device->buttons_svg[i]);  // nsvgParse mangles the string!
             if (cpy) {
                 device->buttons[i] = nsvgParse(cpy, "px", 96.0f);
                 SDL_free(cpy);
@@ -422,19 +419,18 @@ void ControllerImage_DestroyDevice(ControllerImage_Device *device)
         nsvgDeleteRasterizer(device->rasterizer);
         for (int i = 0; i < SDL_GAMEPAD_AXIS_MAX; i++) {
 	        nsvgDelete(device->axes[i]);
+            SDL_free(device->axes_svg[i]);
         }
         for (int i = 0; i < SDL_GAMEPAD_BUTTON_MAX; i++) {
 	        nsvgDelete(device->buttons[i]);
+            SDL_free(device->buttons_svg[i]);
         }
     }
 }
 
 static SDL_Surface *RasterizeImage(NSVGrasterizer *rasterizer, NSVGimage *image, int size)
 {
-    if (!image) {
-        SDL_SetError("No image available");  // !!! FIXME: default to some xbox thing?
-        return NULL;
-    }
+    SDL_assert(image != NULL);
 
     SDL_Surface *surface = SDL_CreateSurface(size, size, SDL_PIXELFORMAT_ABGR8888);
     if (!surface) {
@@ -455,7 +451,12 @@ SDL_Surface *ControllerImage_CreateSurfaceForAxis(ControllerImage_Device *device
         SDL_InvalidParamError("axis");
         return NULL;
     }
-    return RasterizeImage(device->rasterizer, device->axes[iaxis], size);
+    NSVGimage *img = device->axes[iaxis];
+    if (!img) {
+        SDL_SetError("No image available");
+        return NULL;
+    }
+    return RasterizeImage(device->rasterizer, img, size);
 }
 
 SDL_Surface *ControllerImage_CreateSurfaceForButton(ControllerImage_Device *device, SDL_GamepadButton button, int size)
@@ -465,6 +466,39 @@ SDL_Surface *ControllerImage_CreateSurfaceForButton(ControllerImage_Device *devi
         SDL_InvalidParamError("button");
         return NULL;
     }
-    return RasterizeImage(device->rasterizer, device->buttons[ibutton], size);
+    NSVGimage *img = device->buttons[ibutton];
+    if (!img) {
+        SDL_SetError("No image available");
+        return NULL;
+    }
+    return RasterizeImage(device->rasterizer, img, size);
+}
+
+const char *ControllerImage_GetSVGForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis)
+{
+    const int iaxis = (int) axis;
+    if ((iaxis < 0) || (iaxis >= SDL_GAMEPAD_AXIS_MAX)) {
+        SDL_InvalidParamError("axis");
+        return NULL;
+    }
+    const char *svg = device->axes_svg[iaxis];
+    if (!svg) {
+        SDL_SetError("No image available");  // !!! FIXME: default to some xbox thing?
+    }
+    return svg;
+}
+
+const char *ControllerImage_GetSVGForButton(ControllerImage_Device *device, SDL_GamepadButton button)
+{
+    const int ibutton = (int) button;
+    if ((ibutton < 0) || (ibutton >= SDL_GAMEPAD_BUTTON_MAX)) {
+        SDL_InvalidParamError("button");
+        return NULL;
+    }
+    const char *svg = device->buttons_svg[ibutton];
+    if (!svg) {
+        SDL_SetError("No image available");  // !!! FIXME: default to some xbox thing?
+    }
+    return svg;
 }
 

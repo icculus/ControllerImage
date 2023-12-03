@@ -54,6 +54,9 @@ extern DECLSPEC void SDLCALL ControllerImage_DestroyDevice(ControllerImage_Devic
 extern DECLSPEC SDL_Surface *ControllerImage_CreateSurfaceForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis, int size);
 extern DECLSPEC SDL_Surface *ControllerImage_CreateSurfaceForButton(ControllerImage_Device *device, SDL_GamepadButton button, int size);
 
+extern DECLSPEC const char *ControllerImage_GetSVGForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis);
+extern DECLSPEC const char *ControllerImage_GetSVGForButton(ControllerImage_Device *device, SDL_GamepadButton button);
+
 extern DECLSPEC void SDLCALL ControllerImage_Quit(void);
 
 /* Ends C function definitions when using C++ */
