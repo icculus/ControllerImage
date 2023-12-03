@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.0.0)
 
 project(ControllerImage)
 
-find_package(SDL3 REQUIRED)
+if(NOT TARGET SDL3::Headers OR NOT TARGET ${sdl3_target_name})
+    find_package(SDL3 REQUIRED)
+endif()
 
 add_library(controllerimage SHARED
     src/controllerimage.c
