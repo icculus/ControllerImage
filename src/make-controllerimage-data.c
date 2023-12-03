@@ -1,3 +1,11 @@
+/*
+ * ControllerImage; A simple way to obtain game controller images.
+ *
+ * Please see the file LICENSE.txt in the source's root directory.
+ *
+ *  This file written by Ryan C. Gordon.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
