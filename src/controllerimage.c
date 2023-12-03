@@ -128,13 +128,11 @@ static SDL_bool readstr(const Uint8 **_ptr, size_t *_buflen, char **_str)
             if (!finalstr) {
                 void *expanded = SDL_realloc(StringCache, (NumCachedStrings + 1) * sizeof (char *));
                 if (!expanded) {
-                    SDL_OutOfMemory();
                     return SDL_FALSE;
                 }
                 StringCache = (char **) expanded;
                 finalstr = SDL_strdup((const char *) ptr);
                 if (!finalstr) {
-                    SDL_OutOfMemory();
                     return SDL_FALSE;
                 }
 
@@ -193,7 +191,7 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
     } else if (!readui16(&ptr, &buflen, &num_strings)) {
         return -1;
     } else if ((strings = (char **) SDL_calloc(num_strings, sizeof (char *))) == NULL) {
-        return SDL_OutOfMemory();
+        return -1;
     }
 
     for (Uint16 i = 0; i < num_strings; i++) {
@@ -224,7 +222,6 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
 
         ControllerImage_DeviceInfo *info = (ControllerImage_DeviceInfo *) SDL_calloc(1, sizeof (ControllerImage_DeviceInfo) + (sizeof (ControllerImage_Item) * num_items));
         if (!info) {
-            SDL_OutOfMemory();
             goto failed;
         }
 
@@ -340,7 +337,6 @@ static ControllerImage_Device *CreateGamepadDeviceFromInfo(ControllerImage_Devic
 
     ControllerImage_Device *device = SDL_calloc(1, sizeof (ControllerImage_Device));
     if (!device) {
-        SDL_OutOfMemory();
         return NULL;
     }
 
