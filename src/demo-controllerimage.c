@@ -419,6 +419,7 @@ int SDL_AppIterate(void)
     }
 
     SDL_RenderPresent(renderer);
+    return 0;
 }
 
 void SDL_AppQuit(void)

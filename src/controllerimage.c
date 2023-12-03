@@ -119,7 +119,7 @@ static SDL_bool readstr(const Uint8 **_ptr, size_t *_buflen, char **_str)
 
             char *finalstr = NULL;
             for (int j = 0; j < NumCachedStrings; j++) {
-                if (SDL_strcmp(StringCache[j], ptr) == 0) {
+                if (SDL_strcmp(StringCache[j], (const char *) ptr) == 0) {
                     finalstr = StringCache[j];
                     break;
                 }
@@ -132,7 +132,7 @@ static SDL_bool readstr(const Uint8 **_ptr, size_t *_buflen, char **_str)
                     return SDL_FALSE;
                 }
                 StringCache = (char **) expanded;
-                finalstr = SDL_strdup(ptr);
+                finalstr = SDL_strdup((const char *) ptr);
                 if (!finalstr) {
                     SDL_OutOfMemory();
                     return SDL_FALSE;
