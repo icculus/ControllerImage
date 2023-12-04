@@ -1,0 +1,31 @@
+<svg width="100px" height="100px" preserveAspectRatio="none" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <linearGradient id="Gradient_1" x1="72.5" x2="62" y1="49" y2="49" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#D7D7D7" offset="0"/>
+   <stop stop-color="#313131" offset="1"/>
+  </linearGradient>
+  <linearGradient id="Gradient_2" x1="57.512" x2="70.988" y1="49" y2="49" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#4F4F4F" offset="0"/>
+   <stop stop-color="#F5F5F5" offset="1"/>
+  </linearGradient>
+  <linearGradient id="Gradient_3" x1="67.738" x2="59.762" y1="49.5" y2="49.5" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#fff" offset="0"/>
+   <stop stop-color="#626262" offset="1"/>
+  </linearGradient>
+  <linearGradient id="Gradient_4" x1="79.488" x2="67.512" y1="49" y2="49" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#404040" offset="0"/>
+   <stop stop-color="#1B1B1B" offset="1"/>
+  </linearGradient>
+ </defs>
+ <g id="Xbox_One">
+  <g>
+   <path d="m92.85 40.2c-0.4-2.9-2.1833-4.6833-5.35-5.35h-22.35v-22.35c-0.73333-3.1-2.5167-4.8833-5.35-5.35h-19.6c-2.9 0.4-4.6833 2.1833-5.35 5.35v22.35h-22.35c-3.1667 0.66667-4.95 2.45-5.35 5.35v19.6c0.46667 2.8333 2.25 4.6167 5.35 5.35h22.35v22.35c0.66667 3.1667 2.45 4.95 5.35 5.35h19.6c2.8333-0.46667 4.6167-2.25 5.35-5.35v-22.35h22.35c3.1-0.73333 4.8833-2.5167 5.35-5.35v-19.6" fill="url(#Gradient_1)"/>
+   <path d="m85.35 57.65v-15.3h-20.2q-3.1051-0.0018-5.3-2.2-2.1984-2.1951-2.2-5.3v-20.2h-15.3v20.2q-0.0018 3.1049-2.2 5.3-2.1951 2.1982-5.3 2.2h-20.2v15.3h20.2q3.1049 0.0016 5.3 2.2 2.1982 2.1949 2.2 5.3v20.2h15.3v-20.2q0.0016-3.1051 2.2-5.3 2.1949-2.1984 5.3-2.2z" fill="url(#Gradient_2)"/>
+  </g>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+   <path d="m65.15 65.15v22.35q-1.1 4.65-5.35 5.35h-19.6q-4.35-0.6-5.35-5.35v-22.35h-22.35q-4.65-1.1-5.35-5.35v-19.6q0.6-4.35 5.35-5.35h22.35v-22.35q1-4.75 5.35-5.35h19.6q4.25 0.7 5.35 5.35v22.35" stroke="#1b1b1b" stroke-width="5"/>
+   <path d="m85.35 42.35v15.3h-20.2q-3.1051 0.0016-5.3 2.2-2.1984 2.1949-2.2 5.3v20.2h-15.3v-20.2q-0.0018-3.1051-2.2-5.3-2.1951-2.1984-5.3-2.2h-20.2v-15.3h20.2q3.1049-0.0018 5.3-2.2 2.1982-2.1951 2.2-5.3v-20.2h15.3v20.2q0.0016 3.1049 2.2 5.3 2.1949 2.1982 5.3 2.2z" stroke="url(#Gradient_3)" stroke-width="4"/>
+   <path d="m65.15 34.85h22.35q4.75 1 5.35 5.35v19.6q-0.7 4.25-5.35 5.35h-22.35" stroke="url(#Gradient_4)" stroke-width="5"/>
+  </g>
+ </g>
+</svg>

@@ -76,14 +76,37 @@ and offer artwork in the public domain, please get in touch.
 
 ## How do I get the data file I need?
 
-Build the library. It builds a "make-controllerimage-data" executable. Run
-that in the root of the source tree (where the "data" directory is), and it'll
-produce a "controllerimages.bin" file. This is the data you pass to the
-library.
+Compile the C file "src/make-controllerimage-data.c". It should compile
+without any dependencies.
+
+Run that with the "art" directory as its only command line argument.
+It will produce a "controllerimage-standard.bin" file in the current working
+directory. This is the data you pass to the library.
 
 The library is designed to let you add to and replace existing data with
 multiple files, so you can add more files that just fix things and add new
 controllers without having to replace earlier data files completely in a
 patch, and load them in order to get the same results, but a tool to generate
 subsets of data hasn't been written yet.
+
+
+## What if I want to make my own art?
+
+No problem! Lots of games want to have controller images that match their
+style.
+
+Generally I would recommend you build out the most popular controllers, put
+them in their own subdirectory under the "art" directory, and build it as
+a second database. Ship both that file and the "standard" database with the
+game, loading the "standard" one first, then your custom one second, so it
+replaces pieces of the first database.
+
+This way, the most common controllers will match your game's art style, your
+artists didn't have to build a massive amount of art, and if someone comes
+along with an obscure controller, they still see the right thing, just perhaps
+without a perfect style match.
+
+If you want to contribute your new art in the public domain, we will be happy
+to include it with this project, so other people making games with the same
+vibe can take advantage of it!
 

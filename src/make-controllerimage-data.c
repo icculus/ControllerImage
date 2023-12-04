@@ -35,6 +35,26 @@ static char **strings = NULL;
 static int num_devices = 0;
 static DeviceInfo *devices = NULL;
 
+static void *xrealloc(void *ptr, size_t len)
+{
+    ptr = realloc(ptr, len);
+    if (!ptr) {
+        fprintf(stderr, "Out of memory!\n");
+        exit(1);
+    }
+    return ptr;
+}
+
+static void *xmalloc(size_t len)
+{
+    void *ptr = malloc(len);
+    if (!ptr) {
+        fprintf(stderr, "Out of memory!\n");
+        exit(1);
+    }
+    return ptr;
+}
+
 static int cache_string(const char *str)
 {
     for (int i = 0; i < num_strings; i++) {
@@ -50,12 +70,7 @@ static int cache_string(const char *str)
         exit(1);
     }
 
-    void *ptr = realloc(strings, (num_strings + 1) * sizeof (char *));
-    if (!ptr) {
-        fprintf(stderr, "Out of memory!\n");
-        exit(1);
-    }
-
+    void *ptr = xrealloc(strings, (num_strings + 1) * sizeof (char *));
     strings = (char **) ptr;
     strings[num_strings] = strdup(str);
     if (!strings[num_strings]) {
@@ -81,11 +96,7 @@ static int cache_file_string(const char *path)
 
     while (1) {
         const int chunksize = 32 * 1024;
-        void *ptr = realloc(buf, buflen + chunksize);
-        if (!ptr) {
-            fprintf(stderr, "Out of memory!\n");
-            exit(1);
-        }
+        void *ptr = xrealloc(buf, buflen + chunksize);
         buf = (char *) ptr;
         const int br = (int) fread(buf + buflen, 1, chunksize - 1, f);
         buflen += br;
@@ -124,17 +135,16 @@ static void process_gamepad_dir(const char *devid, const char *path)
         exit(1);
     }
 
-    void *ptr = realloc(devices, (num_devices + 1) * sizeof (DeviceInfo));
-    if (!ptr) {
-        fprintf(stderr, "Out of memory!\n");
-        exit(1);
-    }
+    void *ptr = xrealloc(devices, (num_devices + 1) * sizeof (DeviceInfo));
     devices = (DeviceInfo *) ptr;
     DeviceInfo *device = &devices[num_devices];
     num_devices++;
 
     DIR *dirp = opendir(path);
     if (!dirp) {
+        if (errno == ENOTDIR) {
+            return;  // not an error, might be readme.txt or something.
+        }
         fprintf(stderr, "Couldn't opendir '%s': %s\n", path, strerror(errno));
         exit(1);
     }
@@ -149,7 +159,7 @@ static void process_gamepad_dir(const char *devid, const char *path)
         if (strcmp(node, "..") == 0) { continue; }
 
         const size_t slen = strlen(path) + strlen(node) + 2;
-        char *fullpath = (char *) malloc(slen);
+        char *fullpath = (char *) xmalloc(slen);
         snprintf(fullpath, slen, "%s/%s", path, node);
 
         if (strcmp(node, "inherits") == 0) {
@@ -166,11 +176,7 @@ static void process_gamepad_dir(const char *devid, const char *path)
             }
 
             *ext = '\0';
-            ptr = realloc(device->items, (device->num_items + 1) * sizeof (DeviceItem));
-            if (!ptr) {
-                fprintf(stderr, "Out of memory!\n");
-                exit(1);
-            }
+            ptr = xrealloc(device->items, (device->num_items + 1) * sizeof (DeviceItem));
             device->items = (DeviceItem *) ptr;
             DeviceItem *item = &device->items[device->num_items++];
             item->type = cache_string(node);
@@ -195,19 +201,20 @@ static void writeui16(FILE *f, int val)
     fwrite(ui8, 1, 2, f);
 }
 
-int main(int argc, char **argv)
+static void process_devicetype_dir(const char *devicetype, const char *path)
 {
-    const char *basedir = "data/gamepad";
-    const char *binfile = "controllerimages.bin";
+    size_t slen = strlen(path) + strlen(devicetype) + 2;
+    char *fulltypepath = (char *) xmalloc(slen);
+    snprintf(fulltypepath, slen, "%s/%s", path, devicetype);
 
-    // add something, just to make sure the string index 0 isn't something that could be nullable.
-    // this could be more clever, but for an extra byte in the data file, it's good enough.
-    cache_string("");
-
-    DIR *dirp = opendir(basedir);
+    DIR *dirp = opendir(fulltypepath);
     if (!dirp) {
-        fprintf(stderr, "Couldn't opendir '%s': %s\n", basedir, strerror(errno));
-        return 1;
+        if (errno == ENOENT) {
+            free(fulltypepath);
+            return;  // not an error, doesn't exist.
+        }
+        fprintf(stderr, "Couldn't opendir '%s': %s\n", fulltypepath, strerror(errno));
+        exit(1);
     }
 
     struct dirent *dent;
@@ -215,18 +222,38 @@ int main(int argc, char **argv)
         const char *devid = dent->d_name;
         if (strcmp(devid, ".") == 0) { continue; }
         if (strcmp(devid, "..") == 0) { continue; }
-        char fullpath[512];
-        snprintf(fullpath, sizeof (fullpath), "%s/%s", basedir, devid);
+        slen = strlen(fulltypepath) + strlen(devid) + 2;
+        char *fullpath = (char *) xmalloc(slen);
+        snprintf(fullpath, slen, "%s/%s", fulltypepath, devid);
         process_gamepad_dir(devid, fullpath);
+        free(fullpath);
     }
+    closedir(dirp);
+
+    free(fulltypepath);
+}
+
+static void process_theme_dir(const char *theme, const char *path)
+{
+    // add something, just to make sure the string index 0 isn't something that could be nullable.
+    // this could be more clever, but for an extra byte in the data file, it's good enough.
+    cache_string("");
+
+    process_devicetype_dir("gamepad", path);
+
+    size_t slen;
+
+    const char *binfile_basename = "controllerimage";
+    slen = strlen(binfile_basename) + strlen(theme) + 6;
+    char *binfile = (char *) xmalloc(slen);
+    snprintf(binfile, slen, "%s-%s.bin", binfile_basename, theme);
 
     FILE *f = fopen(binfile, "wb");
     if (!f) {
         fprintf(stderr, "Failed to open '%s': %s\n", binfile, strerror(errno));
-        closedir(dirp);
-        return 1;
+        free(binfile);
+        exit(1);
     }
-    closedir(dirp);
 
     static const char magic[8] = { 'C', 'T', 'I', 'M', 'G', '\r', '\n', '\0' };
 
@@ -252,21 +279,65 @@ int main(int argc, char **argv)
     if (fclose(f) == EOF) {
         fprintf(stderr, "Failed to fclose '%s': %s\n", binfile, strerror(errno));
         remove(binfile);
+        free(binfile);
         exit(1);
     }
 
+    printf("Filename: %s\n", binfile);
     printf("Num devices: %d\n", num_devices);
     printf("Num strings: %d\n", num_strings);
+    printf("\n");
+
+    free(binfile);
 
     for (int i = 0; i < num_strings; i++) {
         free(strings[i]);
     }
     free(strings);
+    strings = NULL;
+    num_strings = 0;
 
     for (int i = 0; i < num_devices; i++) {
         free(devices[i].items);
     }
     free(devices);
+    devices = NULL;
+    num_devices = 0;
+}
+
+static void usage_and_exit(const char *argv0)
+{
+    fprintf(stderr, "USAGE: %s <path_to_art_directory>\n", argv0);
+    exit(1);
+}
+
+int main(int argc, char **argv)
+{
+    const char *basedir = NULL;
+    if (argc >= 2) {
+        basedir = argv[1];
+    } else {
+        usage_and_exit(argv[0]);
+    }
+
+    DIR *dirp = opendir(basedir);
+    if (!dirp) {
+        fprintf(stderr, "Couldn't opendir '%s': %s\n", basedir, strerror(errno));
+        return 1;
+    }
+
+    struct dirent *dent;
+    while ((dent = readdir(dirp)) != NULL) {
+        const char *theme = dent->d_name;
+        if (strcmp(theme, ".") == 0) { continue; }
+        if (strcmp(theme, "..") == 0) { continue; }
+        size_t slen = strlen(basedir) + strlen(theme) + 2;
+        char *fullpath = (char *) xmalloc(slen);
+        snprintf(fullpath, slen, "%s/%s", basedir, theme);
+        process_theme_dir(theme, fullpath);
+        free(fullpath);
+    }
+    closedir(dirp);
 
     return 0;
 }

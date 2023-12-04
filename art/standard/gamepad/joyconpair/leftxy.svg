@@ -1,0 +1,12 @@
+<svg width="100px" height="100px" preserveAspectRatio="none" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+ <g>
+  <g fill-rule="evenodd">
+   <circle cx="50" cy="50" r="42.2" fill="#272727"/>
+   <circle cx="50" cy="50" r="35.8" fill="#606060"/>
+   <circle cx="50.058" cy="49.942" r="27.8" fill="#4e4e4e"/>
+  </g>
+  <path d="m50 9.5254-11.467 29.008-29.008 11.467 29.008 11.467 11.467 29.008 11.467-29.008 29.008-11.467-29.008-11.467-11.467-29.008z" fill="#4e4e4e"/>
+ </g>
+ <path d="m49 37.7h-5.45v24.8h15.55v-5.05h-10.1v-19.75z" fill="#8C8C8C"/>
+ <circle cx="50" cy="50" r="42.2" fill="none" stroke="#151515" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" style="paint-order:normal"/>
+</svg>

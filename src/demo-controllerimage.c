@@ -114,7 +114,7 @@ int SDL_AppInit(int argc, char *argv[])
     const SDL_version *linked = ControllerImage_LinkedVersion();
     SDL_Log("Linked against ControllerImage %d.%d.%d\n", linked->major, linked->minor, linked->patch);
 
-    ControllerImage_AddDataFromFile("controllerimages.bin");
+    ControllerImage_AddDataFromFile("controllerimage-standard.bin");
 
     random_seed = (int) ((unsigned int) (SDL_GetPerformanceCounter() & 0xFFFFFFFF));
 

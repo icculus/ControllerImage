@@ -1,0 +1,11 @@
+<svg width="100px" height="100px" preserveAspectRatio="none" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+ <g id="Nintendo_Switch">
+  <g stroke-width="2">
+   <ellipse cx="50" cy="50" rx="40.45" ry="40.4" fill="#1b1b1b" style="paint-order:markers fill stroke"/>
+   <ellipse cx="50" cy="50" rx="36.45" ry="36.4" fill="#313131" style="paint-order:markers fill stroke"/>
+   <circle cx="50" cy="50" r="31" fill="#626262" style="paint-order:markers fill stroke"/>
+   <circle cx="50" cy="50" r="27" fill="#4f4f4f" style="paint-order:markers fill stroke"/>
+  </g>
+  <path d="m50.55 44.4-6.8-11.15h-8.8l10.5 15.2-11.15 16.65h8.35l7.55-12.85 7.75 12.85h8.85l-11.55-16.8 10.3-15.05h-8.5z" fill="#9a9a9a"/>
+ </g>
+</svg>

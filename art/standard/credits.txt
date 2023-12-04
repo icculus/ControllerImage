@@ -1,0 +1,12 @@
+A _lot_ of these images were converted to SVG from the art from here:
+
+https://thoseawesomeguys.com/prompts/
+
+The original art is public domain (Creative Commons 0, or "CC0").
+
+We're grateful to Nicolae (XELU) Berbece and Paul Paun for all their effort
+and kindly giving it away!
+
+Also thanks to Bekoha, who spent a ton of time on research and work to convert
+the art to SVG format!
+
