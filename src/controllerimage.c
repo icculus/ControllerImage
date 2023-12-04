@@ -289,40 +289,73 @@ int ControllerImage_AddDataFromFile(const char *fname)
     return rwops ? ControllerImage_AddDataFromRWops(rwops, SDL_TRUE) : -1;
 }
 
-static void CollectImages(ControllerImage_DeviceInfo *info, char **axes, char **buttons)
+static void CollectGamepadImages(ControllerImage_DeviceInfo *info, char **axes, char **buttons)
 {
     if (!info) {
         return;
     } else if (info->inherits) {
-        CollectImages((ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceGuidMap, info->inherits, NULL), axes, buttons);
+        CollectGamepadImages((ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceGuidMap, info->inherits, NULL), axes, buttons);
     }
+
+    const ControllerImage_Item *leftxy = NULL;
+    const ControllerImage_Item *rightxy = NULL;
 
     const int total = info->num_items;
     for (int i = 0; i < total; i++) {
         const ControllerImage_Item *item = &info->items[i];
-        const int axis = (int) SDL_GetGamepadAxisFromString(item->type);
+        const char *typestr = item->type;
+
+        // just save these for later as fallbacks...
+        if (SDL_strcmp(typestr, "leftxy") == 0) {
+            leftxy = item;
+            continue;
+        } else if (SDL_strcmp(typestr, "rightxy") == 0) {
+            rightxy = item;
+            continue;
+
+        // SDL3 decided not to use n,s,e,w for controller config strings, so convert.
+        } else if (SDL_strcmp(typestr, "n") == 0) {
+            typestr = "y";
+        } else if (SDL_strcmp(typestr, "s") == 0) {
+            typestr = "a";
+        } else if (SDL_strcmp(typestr, "w") == 0) {
+            typestr = "x";
+        } else if (SDL_strcmp(typestr, "e") == 0) {
+            typestr = "b";
+        }
+
+        const int axis = (int) SDL_GetGamepadAxisFromString(typestr);
         if (axis != SDL_GAMEPAD_AXIS_INVALID) {
             SDL_assert(axis >= 0);
             if (axis < SDL_GAMEPAD_AXIS_MAX) {
                 axes[axis] = SDL_strdup(item->svg);
             }
         } else {
-            const char *typestr = item->type;
-            if (SDL_strcmp(typestr, "n") == 0) {
-                typestr = "y";
-            } else if (SDL_strcmp(typestr, "s") == 0) {
-                typestr = "a";
-            } else if (SDL_strcmp(typestr, "w") == 0) {
-                typestr = "x";
-            } else if (SDL_strcmp(typestr, "e") == 0) {
-                typestr = "b";
-            }
             const int button = (int) SDL_GetGamepadButtonFromString(typestr);
             if (button != SDL_GAMEPAD_BUTTON_INVALID) {
                 SDL_assert(button >= 0);
                 if (button < SDL_GAMEPAD_BUTTON_MAX) {
                     buttons[button] = SDL_strdup(item->svg);
                 }
+            }
+        }
+
+        // If there isn't a separate image for [left|right][x|y], see if there's a [left|right]xy fallback...
+        if (leftxy) {
+            if (!axes[SDL_GAMEPAD_AXIS_LEFTX]) {
+                axes[SDL_GAMEPAD_AXIS_LEFTX] = SDL_strdup(leftxy->svg);
+            }
+            if (!axes[SDL_GAMEPAD_AXIS_LEFTY]) {
+                axes[SDL_GAMEPAD_AXIS_LEFTY] = SDL_strdup(leftxy->svg);
+            }
+        }
+
+        if (rightxy) {
+            if (!axes[SDL_GAMEPAD_AXIS_RIGHTX]) {
+                axes[SDL_GAMEPAD_AXIS_RIGHTX] = SDL_strdup(rightxy->svg);
+            }
+            if (!axes[SDL_GAMEPAD_AXIS_RIGHTY]) {
+                axes[SDL_GAMEPAD_AXIS_RIGHTY] = SDL_strdup(rightxy->svg);
             }
         }
     }
@@ -340,7 +373,7 @@ static ControllerImage_Device *CreateGamepadDeviceFromInfo(ControllerImage_Devic
         return NULL;
     }
 
-    CollectImages(info, device->axes_svg, device->buttons_svg);
+    CollectGamepadImages(info, device->axes_svg, device->buttons_svg);
 
     device->rasterizer = nsvgCreateRasterizer();
     if (!device->rasterizer) {
