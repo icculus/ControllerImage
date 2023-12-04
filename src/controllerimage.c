@@ -176,7 +176,6 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
     Uint16 num_devices = 0;
     Uint16 num_strings = 0;
     Uint16 version = 0;
-    Uint16 ui16 = 0;
 
     if (!DeviceGuidMap) {
         return SDL_SetError("Not initialized");
