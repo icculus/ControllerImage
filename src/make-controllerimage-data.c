@@ -239,7 +239,7 @@ static void process_gamepad_dir(const char *devid, const char *path)
     DeviceInfo *device = &devices[num_devices];
     num_devices++;
 
-    DirHandle *dirp = opendir(path);
+    DirHandle *dirp = OpenDir(path);
     if (!dirp) {
         if (errno == ENOTDIR) {
             return;  // not an error, might be readme.txt or something.
