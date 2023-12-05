@@ -28,6 +28,7 @@
     } DirHandle;
 
     static void *xmalloc(size_t len);
+    static void *xrealloc(void *ptr, size_t len);
 
     static DirHandle *OpenDir(const char *path)
     {
