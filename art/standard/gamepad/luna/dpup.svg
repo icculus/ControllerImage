@@ -1,0 +1,143 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" width="100px" height="100px" viewBox="0 0 100 100">
+<defs>
+<linearGradient id="Gradient_1" gradientUnits="userSpaceOnUse" x1="49" y1="27.5" x2="49" y2="38" spreadMethod="pad">
+<stop  offset="0%" stop-color="#D7D7D7"/>
+
+<stop  offset="100%" stop-color="#313131"/>
+</linearGradient>
+
+<linearGradient id="Gradient_2" gradientUnits="userSpaceOnUse" x1="49" y1="42.4875" x2="49" y2="29.0125" spreadMethod="pad">
+<stop  offset="0%" stop-color="#4F4F4F"/>
+
+<stop  offset="100%" stop-color="#F5F5F5"/>
+</linearGradient>
+
+<linearGradient id="Gradient_3" gradientUnits="userSpaceOnUse" x1="49.5" y1="32.2625" x2="49.5" y2="40.2375" spreadMethod="pad">
+<stop  offset="0%" stop-color="#FFFFFF"/>
+
+<stop  offset="100%" stop-color="#626262"/>
+</linearGradient>
+
+<linearGradient id="Gradient_4" gradientUnits="userSpaceOnUse" x1="49" y1="20.5125" x2="49" y2="32.4875" spreadMethod="pad">
+<stop  offset="0%" stop-color="#404040"/>
+
+<stop  offset="100%" stop-color="#1B1B1B"/>
+</linearGradient>
+</defs>
+
+<g id="Luna">
+<g>
+<g>
+<g>
+<path fill="url(#Gradient_1)" stroke="none" d="
+M 92.85 40.2
+Q 92.15 35.95 87.5 34.85
+L 65.15 34.85 65.15 12.5
+Q 64.05 7.85 59.8 7.15
+L 40.2 7.15
+Q 35.85 7.75 34.85 12.5
+L 34.85 34.85 12.5 34.85
+Q 7.85 35.95 7.15 40.2
+L 7.15 59.8
+Q 7.75 64.15 12.5 65.15
+L 34.85 65.15 34.85 87.5
+Q 35.85 92.25 40.2 92.85
+L 59.8 92.85
+Q 64.05 92.15 65.15 87.5
+L 65.15 65.15 87.5 65.15
+Q 92.25 64.15 92.85 59.8
+L 92.85 40.2
+M 85.35 42.35
+L 85.35 57.65 65.15 57.65
+Q 62.05 57.65 59.85 59.85 57.65 62.05 57.65 65.15
+L 57.65 85.35 42.35 85.35 42.35 65.15
+Q 42.35 62.05 40.15 59.85 37.95 57.65 34.85 57.65
+L 14.65 57.65 14.65 42.35 34.85 42.35
+Q 37.95 42.35 40.15 40.15 42.35 37.95 42.35 34.85
+L 42.35 14.65 57.65 14.65 57.65 34.85
+Q 57.65 37.95 59.85 40.15 62.05 42.35 65.15 42.35
+L 85.35 42.35 Z"/>
+
+<path fill="url(#Gradient_2)" stroke="none" d="
+M 85.35 57.65
+L 85.35 42.35 65.15 42.35
+Q 62.05 42.35 59.85 40.15 57.65 37.95 57.65 34.85
+L 57.65 14.65 42.35 14.65 42.35 34.85
+Q 42.35 37.95 40.15 40.15 37.95 42.35 34.85 42.35
+L 14.65 42.35 14.65 57.65 34.85 57.65
+Q 37.95 57.65 40.15 59.85 42.35 62.05 42.35 65.15
+L 42.35 85.35 57.65 85.35 57.65 65.15
+Q 57.65 62.05 59.85 59.85 62.05 57.65 65.15 57.65
+L 85.35 57.65
+M 50 21.9
+L 50 30.25 50 21.9
+M 21.65 50
+L 30 50 21.65 50
+M 69.55 50
+L 77.9 50 69.55 50
+M 50 69.8
+L 50 78.15 50 69.8 Z"/>
+</g>
+</g>
+
+<g>
+<path stroke="#1B1B1B" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" fill="none" d="
+M 65.15 34.85
+L 87.5 34.85
+Q 92.15 35.95 92.85 40.2
+L 92.85 59.8
+Q 92.25 64.15 87.5 65.15
+L 65.15 65.15 65.15 87.5
+Q 64.05 92.15 59.8 92.85
+L 40.2 92.85
+Q 35.85 92.25 34.85 87.5
+L 34.85 65.15 12.5 65.15
+Q 7.75 64.15 7.15 59.8
+L 7.15 40.2
+Q 7.85 35.95 12.5 34.85
+L 34.85 34.85"/>
+</g>
+
+<g>
+<path stroke="url(#Gradient_3)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" fill="none" d="
+M 85.35 42.35
+L 85.35 57.65 65.15 57.65
+Q 62.05 57.65 59.85 59.85 57.65 62.05 57.65 65.15
+L 57.65 85.35 42.35 85.35 42.35 65.15
+Q 42.35 62.05 40.15 59.85 37.95 57.65 34.85 57.65
+L 14.65 57.65 14.65 42.35 34.85 42.35
+Q 37.95 42.35 40.15 40.15 42.35 37.95 42.35 34.85
+L 42.35 14.65 57.65 14.65 57.65 34.85
+Q 57.65 37.95 59.85 40.15 62.05 42.35 65.15 42.35
+L 85.35 42.35 Z"/>
+</g>
+
+<g>
+<path stroke="url(#Gradient_4)" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" fill="none" d="
+M 34.85 34.85
+L 34.85 12.5
+Q 35.85 7.75 40.2 7.15
+L 59.8 7.15
+Q 64.05 7.85 65.15 12.5
+L 65.15 34.85"/>
+</g>
+
+<g>
+<path stroke="#313131" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" fill="none" d="
+M 21.65 50
+L 30 50
+M 69.55 50
+L 77.9 50
+M 50 69.8
+L 50 78.15"/>
+</g>
+
+<g>
+<path stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" fill="none" d="
+M 50 21.9
+L 50 30.25"/>
+</g>
+</g>
+</g>
+</svg>
