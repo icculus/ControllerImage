@@ -10,9 +10,107 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <sys/types.h>
-#include <dirent.h>
 #include <errno.h>
+
+#ifdef _WIN32
+    #define WIN32_LEAN_AND_MEAN 1
+    #include <windows.h>
+
+    // THIS ONLY DEALS WITH ASCII CHARS. DON'T USE ON FILES WITH ANYTHING THAT ISN'T BASIC AMERICAN ENGLISH FROM THE 1970s!
+
+    typedef struct DirHandle
+    {
+        HANDLE handle;
+        WIN32_FIND_DATAW data;
+        char *charbuf;
+        size_t charbuflen;
+        int first;
+    } DirHandle;
+
+    static void *xmalloc(size_t len);
+
+    static DirHandle *OpenDir(const char *path)
+    {
+        DirHandle *dirp = (DirHandle *) xmalloc(sizeof (DirHandle));
+
+        const size_t slen = strlen(path);
+        WCHAR *wstr = (WCHAR *) xmalloc((slen + 1) * sizeof (WCHAR));
+        for (int i = 0; path[i]; i++) {
+            wstr[i] = (WCHAR) path[i];
+        }
+        wstr[slen] = '\0';
+
+        dirp->handle = FindFirstFileW(wstr, &dirp->data);
+        free(wstr);
+        if (dirp->handle == INVALID_HANDLE_VALUE) {
+            free(dirp);
+            return NULL;
+        }
+
+        dirp->charbuf = NULL;
+        dirp->charbuflen = 0;
+        dirp->first = 1;
+
+        return dirp;
+    }
+
+    static void CloseDir(DirHandle *dirp)
+    {
+        if (dirp) {
+            CloseHandle(dirp->handle);
+            free(dirp->charbuf);
+            free(dirp);
+        }
+    }
+
+    static const char *ReadDir(DirHandle *dirp)
+    {
+        const char *retval = NULL;
+        if (dirp) {
+            if (dirp->first) {
+                dirp->first = 0;  // we already read the first entry, return that.
+            } else if (FindNextFileW(dirp->handle, &dirp->data) == 0) {  // out of entries.
+                return NULL;
+            }
+
+            size_t slen; for (slen = 0; dirp->data.cFileName[slen]; slen++) { /* spin */ }
+
+            if (slen > dirp->charbuflen) {
+                dirp->charbuf = xrealloc(dirp->charbuf, slen + 1);
+                dirp->charbuflen = slen;
+            }
+
+            for (size_t i = 0; i < slen; i++) {
+                dirp->charbuf[i] = (char) dirp->data.cFileName[i];
+            }
+            dirp->charbuf[slen] = '\0';
+            retval = dirp->charbuf;
+        }
+        return retval;
+    }
+
+#else
+    #include <sys/types.h>
+    #include <dirent.h>
+
+    typedef DIR DirHandle;
+
+    static DirHandle *OpenDir(const char *path)
+    {
+        return opendir(path);
+    }
+
+    static void CloseDir(DirHandle *dirp)
+    {
+        closedir(dirp);
+    }
+
+    static const char *ReadDir(DirHandle *dirp)
+    {
+        struct dirent *dent = readdir(dirp);
+        return dent ? dent->d_name : NULL;
+    }
+#endif
 
 // this whole program is kinda slapdash atm.
 
@@ -140,7 +238,7 @@ static void process_gamepad_dir(const char *devid, const char *path)
     DeviceInfo *device = &devices[num_devices];
     num_devices++;
 
-    DIR *dirp = opendir(path);
+    DirHandle *dirp = opendir(path);
     if (!dirp) {
         if (errno == ENOTDIR) {
             return;  // not an error, might be readme.txt or something.
@@ -152,9 +250,8 @@ static void process_gamepad_dir(const char *devid, const char *path)
     memset(device, '\0', sizeof (*device));
     device->devid = cache_string(devid);
 
-    struct dirent *dent;
-    while ((dent = readdir(dirp)) != NULL) {
-        char *node = dent->d_name;
+    const char *node;
+    while ((node = ReadDir(dirp)) != NULL) {
         if (strcmp(node, ".") == 0) { continue; }
         if (strcmp(node, "..") == 0) { continue; }
 
@@ -186,7 +283,7 @@ static void process_gamepad_dir(const char *devid, const char *path)
         free(fullpath);
     }
 
-    closedir(dirp);
+    CloseDir(dirp);
 }
 
 static void writeui16(FILE *f, int val)
@@ -207,7 +304,7 @@ static void process_devicetype_dir(const char *devicetype, const char *path)
     char *fulltypepath = (char *) xmalloc(slen);
     snprintf(fulltypepath, slen, "%s/%s", path, devicetype);
 
-    DIR *dirp = opendir(fulltypepath);
+    DirHandle *dirp = OpenDir(fulltypepath);
     if (!dirp) {
         if (errno == ENOENT) {
             free(fulltypepath);
@@ -217,9 +314,8 @@ static void process_devicetype_dir(const char *devicetype, const char *path)
         exit(1);
     }
 
-    struct dirent *dent;
-    while ((dent = readdir(dirp)) != NULL) {
-        const char *devid = dent->d_name;
+    const char *devid;
+    while ((devid = ReadDir(dirp)) != NULL) {
         if (strcmp(devid, ".") == 0) { continue; }
         if (strcmp(devid, "..") == 0) { continue; }
         slen = strlen(fulltypepath) + strlen(devid) + 2;
@@ -228,7 +324,7 @@ static void process_devicetype_dir(const char *devicetype, const char *path)
         process_gamepad_dir(devid, fullpath);
         free(fullpath);
     }
-    closedir(dirp);
+    CloseDir(dirp);
 
     free(fulltypepath);
 }
@@ -320,15 +416,14 @@ int main(int argc, char **argv)
         usage_and_exit(argv[0]);
     }
 
-    DIR *dirp = opendir(basedir);
+    DirHandle *dirp = OpenDir(basedir);
     if (!dirp) {
         fprintf(stderr, "Couldn't opendir '%s': %s\n", basedir, strerror(errno));
         return 1;
     }
 
-    struct dirent *dent;
-    while ((dent = readdir(dirp)) != NULL) {
-        const char *theme = dent->d_name;
+    const char *theme;
+    while ((theme = ReadDir(dirp)) != NULL) {
         if (strcmp(theme, ".") == 0) { continue; }
         if (strcmp(theme, "..") == 0) { continue; }
         size_t slen = strlen(basedir) + strlen(theme) + 2;
@@ -337,7 +432,7 @@ int main(int argc, char **argv)
         process_theme_dir(theme, fullpath);
         free(fullpath);
     }
-    closedir(dirp);
+    CloseDir(dirp);
 
     return 0;
 }
