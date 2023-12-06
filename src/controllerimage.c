@@ -217,6 +217,10 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
             goto bogus_data;
         } else if (!readui16(&ptr, &buflen, &num_items)) {
             goto failed;
+        } else if (*(strings[devid]) == '\0') {
+            goto bogus_data;  // can't have an empty string for the device ID.
+        } else if (inherits && (*(strings[inherits]) == '\0')) {
+            goto bogus_data;  // can't have an empty string for inherits.
         }
 
         ControllerImage_DeviceInfo *info = (ControllerImage_DeviceInfo *) SDL_calloc(1, sizeof (ControllerImage_DeviceInfo) + (sizeof (ControllerImage_Item) * num_items));
