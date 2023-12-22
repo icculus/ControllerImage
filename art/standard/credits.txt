@@ -8,5 +8,5 @@ We're grateful to Nicolae (XELU) Berbece and Paul Paun for all their effort
 and kindly giving it away!
 
 Also thanks to Bekoha, who spent a ton of time on research and work to convert
-the art to SVG format!
+the art to SVG format, and also contributed some original pieces.
 

@@ -1,4 +1,10 @@
-All SVG images provided here are built by/for this project from scratch and
-are offered into the public domain. Use them how you like, without
-restrictions, either as part of this project or something totally unrelated.
+All SVG images provided here are in the public domain. Either they were
+built for this project originally, or they were public domain assets
+offered on the Internet.
+
+Use them how you like, without restrictions, either as part of this project
+or something totally unrelated.
+
+Please refer to the various "credits.txt" files under the "art" directory
+for specifics on who built a specific set of graphics.
 
