@@ -35,7 +35,12 @@ extern DECLSPEC const SDL_version * SDLCALL ControllerImage_LinkedVersion(void);
 
 /* as the datafile format changes, this number bumps. This is the latest
    version the library understands. */
-#define CONTROLLERIMAGE_CURRENT_DATAVER 1
+#define CONTROLLERIMAGE_CURRENT_DATAVER 2
+
+/* Previous data versions:
+    1: first public version
+    2: Added GUIDs lists to devices
+*/
 
 typedef struct ControllerImage_Device ControllerImage_Device;
 

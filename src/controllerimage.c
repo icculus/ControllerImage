@@ -73,6 +73,7 @@ typedef struct ControllerImage_DeviceInfo
     const char *inherits;
     int num_items;
     ControllerImage_Item *items;
+    int refcount;
 } ControllerImage_DeviceInfo;
 
 
@@ -168,7 +169,17 @@ static SDL_bool readui16(const Uint8 **_ptr, size_t *_buflen, Uint16 *_ui16)
 
 static void SDLCALL CleanupDeviceInfo(void *userdata, void *value)
 {
-    SDL_free(value);  // this is the ControllerImage_DeviceInfo and also its items in the same buffer. Strings live elsewhere and are reused.
+    // the same `ControllerImage_DeviceInfo*` is used for each matching
+    // string/guid lookup in the hash table, so nuking it is actually a
+    // refcount decrement until all references are gone.
+    // the refcount isn't atomic, since it should only change on database
+    // load and deinit...we just need to make sure we don't double-free.
+    ControllerImage_DeviceInfo *info = (ControllerImage_DeviceInfo *) value;
+    if (info->refcount == 1) {
+        SDL_free(value);  // this is the ControllerImage_DeviceInfo and also its items in the same buffer. Strings live elsewhere and are reused.
+    } else {
+        info->refcount--;
+    }
 }
 
 int ControllerImage_AddData(const void *buf, size_t buflen)
@@ -181,14 +192,14 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
 
     if (!DeviceGuidMap) {
         return SDL_SetError("Not initialized");
-    } else if (buflen < 12) {
+    } else if (buflen < 20) {
         goto bogus_data;
     } else if (SDL_memcmp(magic, buf, sizeof (magic)) != 0) {
         goto bogus_data;
     } else if (!readui16(&ptr, &buflen, &version)) {
         return -1;
     } else if (version > CONTROLLERIMAGE_CURRENT_DATAVER) {
-        return SDL_SetError("Unsupported data version");
+        return SDL_SetError("Unsupported data version; upgrade your copy of ControllerImage?");
     } else if (!readui16(&ptr, &buflen, &num_strings)) {
         return -1;
     } else if ((strings = (char **) SDL_calloc(num_strings, sizeof (char *))) == NULL) {
@@ -207,6 +218,7 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
 
     for (Uint16 i = 0; i < num_devices; i++) {
         Uint16 num_items = 0;
+        Uint16 num_guids = 0;
         Uint16 devid = 0;
         Uint16 inherits = 0;
         if (!readui16(&ptr, &buflen, &devid)) {
@@ -218,6 +230,8 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
         } else if (inherits && (inherits >= num_strings)) {
             goto bogus_data;
         } else if (!readui16(&ptr, &buflen, &num_items)) {
+            goto failed;
+        } else if ((version >= 2) && (!readui16(&ptr, &buflen, &num_guids))) {  // GUIDs didn't land until version 2 of the file format.
             goto failed;
         } else if (*(strings[devid]) == '\0') {
             goto bogus_data;  // can't have an empty string for the device ID.
@@ -259,6 +273,32 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
         if (SDL_SetPropertyWithCleanup(DeviceGuidMap, strings[devid], info, CleanupDeviceInfo, NULL) == -1) {
             SDL_free(info);
             goto failed;
+        }
+
+        info->refcount = 1;
+
+        // now put the same `info` into the database for each associated GUID...
+        for (Uint16 j = 0; j < num_guids; j++) {
+            SDL_GUID guid;
+            if (buflen < sizeof (guid.data)) {
+                SDL_SetError("Unexpected end of data");
+                goto failed;
+            }
+
+            SDL_memcpy(guid.data, ptr, sizeof (guid.data));
+            ptr += sizeof (guid.data);
+            buflen -= sizeof (guid.data);
+
+            char guidstr[33];
+            if (SDL_GUIDToString(guid, guidstr, sizeof (guidstr)) < 0) {
+                SDL_assert(!"this probably shouldn't fail...");
+                goto bogus_data;
+            }
+
+            // If this fails for some reason, go on without this guid. Do NOT SDL_free(info), it's already in the database, refcounted.
+            if (SDL_SetPropertyWithCleanup(DeviceGuidMap, guidstr, info, CleanupDeviceInfo, NULL) == 0) {
+                info->refcount++;
+            }
         }
     }
 
@@ -429,6 +469,12 @@ ControllerImage_Device *ControllerImage_CreateGamepadDeviceByInstance(SDL_Joysti
     SDL_GUIDToString(guid, guidstr, sizeof (guidstr));
 
     ControllerImage_DeviceInfo *info = (ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceGuidMap, guidstr, NULL);
+
+    if (!info) {
+        guidstr[4] = guidstr[5] = guidstr[6] = guidstr[7] = '0';  // clear out the CRC, see if it matches...
+        info = (ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceGuidMap, guidstr, NULL);
+    }
+
     if (!info) {
         // since these are the most common things, we might have a fallback specific to this device type...
         const char *typestr = SDL_GetGamepadStringForType(SDL_GetGamepadInstanceType(jsid));
