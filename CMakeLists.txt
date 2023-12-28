@@ -15,6 +15,10 @@ set_target_properties(controllerimage PROPERTIES C_VISIBILITY_PRESET "hidden")
 target_link_libraries(controllerimage PRIVATE ${SDL3_LIBRARIES})
 
 add_executable(make-controllerimage-data src/make-controllerimage-data.c)
+
+add_executable(test-controllerimage src/test-controllerimage.c)
+target_link_libraries(test-controllerimage controllerimage ${SDL3_LIBRARIES})
+
 add_executable(demo-controllerimage src/demo-controllerimage.c)
 target_link_libraries(demo-controllerimage controllerimage ${SDL3_LIBRARIES})
 
