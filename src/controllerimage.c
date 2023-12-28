@@ -55,6 +55,7 @@ typedef struct ControllerImage_Device
     // any of these might be NULL!
     NSVGimage *axes[SDL_GAMEPAD_AXIS_MAX];
     NSVGimage *buttons[SDL_GAMEPAD_BUTTON_MAX];
+    const char *device_type;
     char *axes_svg[SDL_GAMEPAD_AXIS_MAX];
     char *buttons_svg[SDL_GAMEPAD_BUTTON_MAX];
     NSVGrasterizer *rasterizer;
@@ -68,6 +69,7 @@ typedef struct ControllerImage_Item
 
 typedef struct ControllerImage_DeviceInfo
 {
+    const char *type;
     const char *inherits;
     int num_items;
     ControllerImage_Item *items;
@@ -228,6 +230,7 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
             goto failed;
         }
 
+        info->type = strings[devid];
         info->inherits = inherits ? strings[inherits] : NULL;
         info->num_items = num_items;
         info->items = (ControllerImage_Item *) (info + 1);
@@ -376,6 +379,8 @@ static ControllerImage_Device *CreateGamepadDeviceFromInfo(ControllerImage_Devic
         return NULL;
     }
 
+    device->device_type = info->type;
+
     CollectGamepadImages(info, device->axes_svg, device->buttons_svg);
 
     device->rasterizer = nsvgCreateRasterizer();
@@ -438,6 +443,16 @@ ControllerImage_Device *ControllerImage_CreateGamepadDeviceByInstance(SDL_Joysti
 
     return CreateGamepadDeviceFromInfo(info);
 }
+
+const char *ControllerImage_GetDeviceType(ControllerImage_Device *device)
+{
+    if (!device) {
+        SDL_InvalidParamError("device");
+        return NULL;
+    }
+    return device->device_type;
+}
+
 
 ControllerImage_Device *ControllerImage_CreateGamepadDevice(SDL_Gamepad *gamepad)
 {
