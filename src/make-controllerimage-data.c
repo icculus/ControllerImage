@@ -527,6 +527,7 @@ static void process_theme_dir(const char *theme, const char *path)
     free(strings);
     strings = NULL;
     num_strings = 0;
+    num_guids = 0;
 
     for (int i = 0; i < num_devices; i++) {
         free(devices[i].items);
