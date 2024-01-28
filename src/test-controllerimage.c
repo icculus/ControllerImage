@@ -53,6 +53,9 @@ int SDL_AppInit(int argc, char *argv[])
         return panic("ControllerImage_Init failed!", SDL_GetError());
     } else if (ControllerImage_AddDataFromFile("controllerimage-standard.bin") < 0) {
         return panic("ControllerImage_AddDataFromFile failed!", SDL_GetError());
+    // !!! FIXME: let themes be loaded by command line option.
+    //} else if (ControllerImage_AddDataFromFile("controllerimage-kenney.bin") < 0) {
+    //    return panic("ControllerImage_AddDataFromFile failed!", SDL_GetError());
     } else if ((window = SDL_CreateWindow(title, winw, winh, SDL_WINDOW_RESIZABLE|SDL_WINDOW_HIDDEN)) == NULL) {
         return panic("SDL_CreateWindow failed!", SDL_GetError());
     } else if ((renderer = SDL_CreateRenderer(window, NULL, 0)) == NULL) {
