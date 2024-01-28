@@ -295,6 +295,8 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
                 goto bogus_data;
             }
 
+            // !!! FIXME: this does not work with overriding controllers with a second data set (so you load `standard` and then load `kenney` on top),
+            // !!! FIXME:  so looking up a device by GUID will find the original images, not the overridden ones.
             // If this fails for some reason, go on without this guid. Do NOT SDL_free(info), it's already in the database, refcounted.
             if (SDL_SetPropertyWithCleanup(DeviceGuidMap, guidstr, info, CleanupDeviceInfo, NULL) == 0) {
                 info->refcount++;
