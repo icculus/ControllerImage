@@ -376,6 +376,7 @@ static void CollectGamepadImages(ControllerImage_DeviceInfo *info, char **axes, 
         if (axis != SDL_GAMEPAD_AXIS_INVALID) {
             SDL_assert(axis >= 0);
             if (axis < SDL_GAMEPAD_AXIS_MAX) {
+                SDL_free(axes[axis]);  // in case we're overriding an earlier image.
                 axes[axis] = SDL_strdup(item->svg);
             }
         } else {
@@ -383,6 +384,7 @@ static void CollectGamepadImages(ControllerImage_DeviceInfo *info, char **axes, 
             if (button != SDL_GAMEPAD_BUTTON_INVALID) {
                 SDL_assert(button >= 0);
                 if (button < SDL_GAMEPAD_BUTTON_MAX) {
+                    SDL_free(buttons[button]);  // in case we're overriding an earlier image.
                     buttons[button] = SDL_strdup(item->svg);
                 }
             }
