@@ -41,11 +41,17 @@ static void SDLCALL cleanup_texture(void *userdata, void *value)
     SDL_DestroyTexture((SDL_Texture *) value);
 }
 
+static int usage(const char *argv0)
+{
+    return panic("USAGE: %s [artset]", argv0);
+}
 
 int SDL_AppInit(int argc, char *argv[])
 {
     const char *title = argv[0] ? argv[0] : "test-controllerimage";
     SDL_Surface *surf = NULL;
+    const char *artset = NULL;
+    int i;
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD) < 0) {
         return panic("SDL_Init failed!", SDL_GetError());
@@ -53,9 +59,6 @@ int SDL_AppInit(int argc, char *argv[])
         return panic("ControllerImage_Init failed!", SDL_GetError());
     } else if (ControllerImage_AddDataFromFile("controllerimage-standard.bin") < 0) {
         return panic("ControllerImage_AddDataFromFile failed!", SDL_GetError());
-    // !!! FIXME: let themes be loaded by command line option.
-    //} else if (ControllerImage_AddDataFromFile("controllerimage-kenney.bin") < 0) {
-    //    return panic("ControllerImage_AddDataFromFile failed!", SDL_GetError());
     } else if ((window = SDL_CreateWindow(title, winw, winh, SDL_WINDOW_RESIZABLE|SDL_WINDOW_HIDDEN)) == NULL) {
         return panic("SDL_CreateWindow failed!", SDL_GetError());
     } else if ((renderer = SDL_CreateRenderer(window, NULL, 0)) == NULL) {
@@ -72,7 +75,29 @@ int SDL_AppInit(int argc, char *argv[])
 
     SDL_SetTextureScaleMode(gamepad_front_texture, SDL_SCALEMODE_LINEAR);
 
-    if (argc > 1) {
+    for (i = 1; i < argc; i++) {
+        const char *arg = argv[i];
+        if (arg[0] != '-') {
+            if (artset == NULL) {
+                artset = arg;
+            } else {
+                return usage(argv[0]);
+            }
+        } else {
+            while (*arg == '-') { arg++; }
+            if (SDL_strcmp(arg, "database") == 0) {
+                arg = argv[++i];
+                if (arg == NULL) {
+                    return usage(argv[0]);
+                }
+                if (ControllerImage_AddDataFromFile(arg) < 0) {
+                    return panic("ControllerImage_AddDataFromFile failed!", SDL_GetError());
+                }
+            }
+        }
+    }
+
+    if (artset) {
         artset_properties = SDL_CreateProperties();
         if (!artset_properties) {
             return panic("SDL_CreateProperties failed!", SDL_GetError());
