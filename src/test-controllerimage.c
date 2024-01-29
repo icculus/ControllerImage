@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #define SDL_MAIN_USE_CALLBACKS 1
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -13,8 +15,12 @@ static SDL_Renderer *renderer = NULL;
 static SDL_Texture *gamepad_front_texture = NULL;
 static SDL_Gamepad *current_gamepad = NULL;
 static SDL_PropertiesID artset_properties = 0;
-static int winw = 1280;
-static int winh = 720;
+static int winw = 1452;
+static int winh = 940;
+static int dump_theme = -1;
+static int dump_theme_shot = 0;
+static int dump_theme_total = 0;
+static const char *dump_theme_title = NULL;
 
 static int panic(const char *title, const char *msg)
 {
@@ -43,7 +49,26 @@ static void SDLCALL cleanup_texture(void *userdata, void *value)
 
 static int usage(const char *argv0)
 {
-    return panic("USAGE: %s [artset]", argv0);
+    SDL_Log("USAGE: %s [artset] [--database fname] [--dumptheme]", argv0);
+    return -1;
+}
+
+static int load_artset(const char *artset)
+{
+    SDL_DestroyProperties(artset_properties);
+    artset_properties = SDL_CreateProperties();
+    if (!artset_properties) {
+        return panic("SDL_CreateProperties failed!", SDL_GetError());
+    }
+
+    ControllerImage_Device *imgdev = ControllerImage_CreateGamepadDeviceByIdString(artset);
+    if (!imgdev) {
+        return panic("ControllerImage_CreateGamepadDeviceByIdString failed!", SDL_GetError());
+    }
+    if (SDL_SetPropertyWithCleanup(artset_properties, PROP_IMGDEV, imgdev, cleanup_imgdev, NULL) < 0) {
+        return panic("SDL_SetPropertyWithCleanup failed!", SDL_GetError());
+    }
+    return 0;
 }
 
 int SDL_AppInit(int argc, char *argv[])
@@ -51,14 +76,13 @@ int SDL_AppInit(int argc, char *argv[])
     const char *title = argv[0] ? argv[0] : "test-controllerimage";
     SDL_Surface *surf = NULL;
     const char *artset = NULL;
+    SDL_bool added_database = SDL_FALSE;
     int i;
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD) < 0) {
         return panic("SDL_Init failed!", SDL_GetError());
     } else if (ControllerImage_Init() < 0) {
         return panic("ControllerImage_Init failed!", SDL_GetError());
-    } else if (ControllerImage_AddDataFromFile("controllerimage-standard.bin") < 0) {
-        return panic("ControllerImage_AddDataFromFile failed!", SDL_GetError());
     } else if ((window = SDL_CreateWindow(title, winw, winh, SDL_WINDOW_RESIZABLE|SDL_WINDOW_HIDDEN)) == NULL) {
         return panic("SDL_CreateWindow failed!", SDL_GetError());
     } else if ((renderer = SDL_CreateRenderer(window, NULL, 0)) == NULL) {
@@ -77,7 +101,7 @@ int SDL_AppInit(int argc, char *argv[])
 
     for (i = 1; i < argc; i++) {
         const char *arg = argv[i];
-        if (arg[0] != '-') {
+        if (*arg != '-') {
             if (artset == NULL) {
                 artset = arg;
             } else {
@@ -93,20 +117,29 @@ int SDL_AppInit(int argc, char *argv[])
                 if (ControllerImage_AddDataFromFile(arg) < 0) {
                     return panic("ControllerImage_AddDataFromFile failed!", SDL_GetError());
                 }
+                added_database = SDL_TRUE;
+            } else if (SDL_strcmp(arg, "dumptheme") == 0) {
+                dump_theme = 0;
+                dump_theme_title = argv[++i];
+                if (dump_theme_title == NULL) {
+                    return usage(argv[0]);
+                }
+            } else {
+                return usage(argv[0]);
             }
         }
     }
 
+    if (!added_database) {
+        if (ControllerImage_AddDataFromFile("controllerimage-standard.bin") < 0) {
+            return panic("ControllerImage_AddDataFromFile failed!", SDL_GetError());
+        }
+    }
+
     if (artset) {
-        artset_properties = SDL_CreateProperties();
-        if (!artset_properties) {
-            return panic("SDL_CreateProperties failed!", SDL_GetError());
+        if (load_artset(artset) < 0) {
+            return -1;
         }
-        ControllerImage_Device *imgdev = ControllerImage_CreateGamepadDeviceByIdString(argv[1]);
-        if (!imgdev) {
-            return panic("ControllerImage_CreateGamepadDeviceByIdString failed!", SDL_GetError());
-        }
-        SDL_SetPropertyWithCleanup(artset_properties, PROP_IMGDEV, imgdev, cleanup_imgdev, NULL);
     }
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -274,19 +307,52 @@ static void render_axis(SDL_Renderer *renderer, SDL_PropertiesID gamepad_props, 
 
 int SDL_AppIterate(void)
 {
+    static const char *artsets[] = {
+        "xbox360", "xboxone", "xboxseries",
+        "steamcontroller", "steamdeck",
+        "joyconpair", "switchpro",
+        "ps3", "ps4", "ps5",
+        "luna", "ouya", "stadia", "vita",
+    };
+
     SDL_RenderClear(renderer);
 
     // original size of the bitmap. It's a hack.
     const int w = 512;
     const int h = 317;
 
+    const SDL_bool dumping = (dump_theme >= 0);
     const float scale = (((float) winw) / ((float) w));
     const float fh = ((float) h) * scale;
     const float fy = (((float) winh) - fh) / 2.0f;
-    const SDL_FRect gamepad_dstrect = { 0.0f, fy, (float) winw, fh };
-    SDL_RenderTexture(renderer, gamepad_front_texture, NULL, &gamepad_dstrect);
+    //const SDL_FRect gamepad_dstrect = { 0.0f, fy, (float) winw, fh };
+    SDL_RenderTexture(renderer, gamepad_front_texture, NULL, NULL);
 
     const float button_size = 38 * scale;
+
+    if (dumping) {
+        if (dump_theme_shot == 0) {
+            ControllerImage_Device *imgdev = NULL;
+            const char *artset = artsets[dump_theme];
+
+            if (dump_theme >= SDL_arraysize(artsets)) {
+                printf("ffmpeg -f image2 -framerate 3 -i img%%03d.bmp -filter_complex \"[0:v] palettegen\" palette%%03d.png\n");
+                printf("rm -f %s.gif\n", dump_theme_title);
+                printf("ffmpeg -f image2 -framerate 3 -i img%%03d.bmp -i palette001.png -filter_complex \"[0:v][1:v] paletteuse\" -loop 0 %s.gif\n", dump_theme_title);
+                printf("rm -f img*.bmp palette001.png\n");
+                return 1;  // we're done!
+            } else if ((imgdev = ControllerImage_CreateGamepadDeviceByIdString(artset)) == NULL) {
+                SDL_Log("ControllerImage_CreateGamepadDeviceByIdString('%s') failed, skipping artset: %s", artset, SDL_GetError());
+                dump_theme++;
+                return 0;  // skip this one, it's probably missing.
+            } else {
+                ControllerImage_DestroyDevice(imgdev);
+                if (load_artset(artset) < 0) {
+                    return -1;  // we're done! for the wrong reasons!!
+                }
+            }
+        }
+    }
 
     SDL_PropertiesID gamepad_props = 0;
     if (artset_properties) {
@@ -323,28 +389,28 @@ int SDL_AppIterate(void)
         const Uint64 now = SDL_GetTicks();
         const int total_looptime = 3000;
         const int looptime = (int) (now % ((Uint64) total_looptime));
-        const int section = (int) (((float) looptime) / (total_looptime / 5.0f));
+        const int section = dumping ? dump_theme_shot : ((int) (((float) looptime) / (total_looptime / 5.0f)));
         update_gamepad_textures(gamepad_props, button_size);
-        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_NORTH, 403 * scale, fy + (110 * scale), button_size);
-        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_SOUTH, 403 * scale, fy + (167 * scale), button_size);
-        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_WEST, 370 * scale, fy + (138 * scale), button_size);
-        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_EAST, 435 * scale, fy + (138 * scale), button_size);
-        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_BACK, 155 * scale, fy + (125 * scale), button_size);
-        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_GUIDE, 237 * scale, fy + (215 * scale), button_size);
-        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_TOUCHPAD, 200 * scale, fy + (105 * scale), button_size * 3);
-        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_START, 319 * scale, fy + (125 * scale), button_size);
-        render_button(renderer, gamepad_props, dpad_order[section], 140 * scale, fy + (200 * scale), button_size * 2);
-        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, 65 * scale, fy + (40 * scale), button_size);
-        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, 410 * scale, fy + (40 * scale), button_size);
+        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_NORTH, 383 * scale, fy + (105 * scale), button_size);
+        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_SOUTH, 383 * scale, fy + (162 * scale), button_size);
+        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_WEST, 350 * scale, fy + (133 * scale), button_size);
+        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_EAST, 415 * scale, fy + (133 * scale), button_size);
+        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_BACK, 155 * scale, fy + (75 * scale), button_size);
+        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_GUIDE, 237 * scale, fy + (165 * scale), button_size);
+        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_TOUCHPAD, 200 * scale, fy + (55 * scale), button_size * 3);
+        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_START, 319 * scale, fy + (75 * scale), button_size);
+        render_button(renderer, gamepad_props, dpad_order[section], 70 * scale, fy + (119 * scale), button_size * 2);
+        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, 130 * scale, fy + (23 * scale), button_size);
+        render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER, 345 * scale, fy + (23 * scale), button_size);
         if (section == 4) {
-            render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_LEFT_STICK, 62 * scale, fy + (133 * scale), button_size * 2);
-            render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_RIGHT_STICK, 292 * scale, fy + (207 * scale), button_size * 2);
+            render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_LEFT_STICK, 135 * scale, fy + (185 * scale), button_size * 2);
+            render_button(renderer, gamepad_props, SDL_GAMEPAD_BUTTON_RIGHT_STICK, 292 * scale, fy + (185 * scale), button_size * 2);
         }
 
-        render_axis(renderer, gamepad_props, axisleft_order[section], 62 * scale, fy + (133 * scale), button_size * 2);
-        render_axis(renderer, gamepad_props, axisright_order[section], 292 * scale, fy + (207 * scale), button_size * 2);
-        render_axis(renderer, gamepad_props, SDL_GAMEPAD_AXIS_LEFT_TRIGGER, 100 * scale, fy + (10 * scale), button_size);
-        render_axis(renderer, gamepad_props, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER, 381 * scale, fy + (10 * scale), button_size);
+        render_axis(renderer, gamepad_props, axisleft_order[section], 135 * scale, fy + (185 * scale), button_size * 2);
+        render_axis(renderer, gamepad_props, axisright_order[section], 292 * scale, fy + (185 * scale), button_size * 2);
+        render_axis(renderer, gamepad_props, SDL_GAMEPAD_AXIS_LEFT_TRIGGER, 100 * scale, fy + (1 * scale), button_size);
+        render_axis(renderer, gamepad_props, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER, 375 * scale, fy + (1 * scale), button_size);
 
 #if 0  // !!! FIXME:
     SDL_GAMEPAD_BUTTON_MISC1,           /* Additional button (e.g. Xbox Series X share button, PS5 microphone button, Nintendo Switch Pro capture button, Amazon Luna microphone button) */
@@ -353,6 +419,24 @@ int SDL_AppIterate(void)
     SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2,   /* Lower or secondary paddle, under your right hand (e.g. Xbox Elite paddle P2) */
     SDL_GAMEPAD_BUTTON_LEFT_PADDLE2,    /* Lower or secondary paddle, under your left hand (e.g. Xbox Elite paddle P4) */
 #endif
+    }
+
+    if (dumping) {
+        char fname[64];
+        const SDL_Rect r = { 0, 0, winw, winh };
+        SDL_Surface *surface = SDL_CreateSurface(winw, winh, SDL_PIXELFORMAT_BGRX8888);
+        SDL_snprintf(fname, sizeof (fname), "img%03d.bmp", dump_theme_total);
+        dump_theme_total++;
+        SDL_RenderReadPixels(renderer, &r, SDL_PIXELFORMAT_BGRX8888, surface->pixels, surface->pitch);
+        SDL_SaveBMP(surface, fname);
+        SDL_DestroySurface(surface);
+
+        printf("convert -pointsize 40 -fill yellow -gravity center -draw 'text 0,-430 \"ControllerImage theme:\"' -pointsize 50 -draw 'text 0,-380 \"%s\"' -pointsize 100 -draw 'text 0,375 \"%s\"' %s temp.bmp ; mv temp.bmp %s\n", dump_theme_title, artsets[dump_theme], fname, fname);
+
+        if (++dump_theme_shot >= 5) {
+            dump_theme_shot = 0;
+            dump_theme++;
+        }
     }
 
     SDL_RenderPresent(renderer);
