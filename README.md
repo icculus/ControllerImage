@@ -14,7 +14,7 @@ It is intended to work with whatever looks like a gamepad to SDL3, but it
 requires artwork, in SVG format, for whatever controller the user happens to
 be using. The standard ones--Xbox, PlayStation, Switch--are supplied, and if
 we can't offer anything better, we'll aim for a generic Xbox 360 controller,
-under the assumption it _probably_ represent most generic third-party devices.
+under the assumption it _probably_ represents most generic third-party devices.
 
 We need submissions of more controller art! It must be in
 [SVG format](https://en.wikipedia.org/wiki/SVG), and ideally it's as small as
