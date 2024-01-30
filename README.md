@@ -38,7 +38,7 @@ and offer artwork in the public domain, please get in touch.
 - Load in the controller and image data...
   ```c
   // there are also versions that can load from an SDL_RWops or a memory buffer...
-  if (ControllerImage_AddDataFromFile("controllerimages.bin") == -1) {
+  if (ControllerImage_AddDataFromFile("controllerimages-standard.bin") == -1) {
       SDL_Log("ControllerImage_AddDataFromFile() failed! why='%s'", SDL_GetError());
   }
   ```
@@ -81,7 +81,9 @@ without any dependencies.
 
 Run that with the "art" directory as its only command line argument.
 It will produce a "controllerimage-standard.bin" file in the current working
-directory. This is the data you pass to the library.
+directory. This is the data you pass to the library. It will also build other
+themes that can be overlayed on top of the "standard" theme; these are
+optional.
 
 The library is designed to let you add to and replace existing data with
 multiple files, so you can add more files that just fix things and add new
