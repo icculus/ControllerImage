@@ -81,9 +81,9 @@ static SDL_PropertiesID DeviceGuidMap = 0;
 static char **StringCache = NULL;
 static int NumCachedStrings = 0;
 
-const SDL_version *ControllerImage_LinkedVersion(void)
+const SDL_Version *ControllerImage_LinkedVersion(void)
 {
-    static const SDL_version linked_version = {
+    static const SDL_Version linked_version = {
         CONTROLLERIMAGE_MAJOR_VERSION,
         CONTROLLERIMAGE_MINOR_VERSION,
         CONTROLLERIMAGE_PATCHLEVEL
@@ -315,17 +315,17 @@ failed:
     return -1;
 }
 
-int ControllerImage_AddDataFromRWops(SDL_RWops *rwops, SDL_bool freerw)
+int ControllerImage_AddDataFromIOStream(SDL_IOStream *iostrm, SDL_bool freeio)
 {
     Uint8 *buf = NULL;
     size_t buflen = 0;
     int retval = 0;
 
-    if (!rwops) {
-        return SDL_InvalidParamError("rwops");
+    if (!iostrm) {
+        return SDL_InvalidParamError("iostrm");
     }
 
-    buf = (Uint8 *) SDL_LoadFile_RW(rwops, &buflen, freerw);
+    buf = (Uint8 *) SDL_LoadFile_IO(iostrm, &buflen, freeio);
     retval = buf ? ControllerImage_AddData(buf, buflen) : -1;
     SDL_free(buf);
     return retval;
@@ -333,8 +333,8 @@ int ControllerImage_AddDataFromRWops(SDL_RWops *rwops, SDL_bool freerw)
 
 int ControllerImage_AddDataFromFile(const char *fname)
 {
-    SDL_RWops *rwops = SDL_RWFromFile(fname, "rb");
-    return rwops ? ControllerImage_AddDataFromRWops(rwops, SDL_TRUE) : -1;
+    SDL_IOStream *iostrm = SDL_IOFromFile(fname, "rb");
+    return iostrm ? ControllerImage_AddDataFromIOStream(iostrm, SDL_TRUE) : -1;
 }
 
 static void CollectGamepadImages(ControllerImage_DeviceInfo *info, char **axes, char **buttons)

@@ -31,7 +31,7 @@ extern "C" {
     (X)->patch = CONTROLLERIMAGE_PATCHLEVEL; \
 }
 
-extern DECLSPEC const SDL_version * SDLCALL ControllerImage_LinkedVersion(void);
+extern DECLSPEC const SDL_Version * SDLCALL ControllerImage_LinkedVersion(void);
 
 /* as the datafile format changes, this number bumps. This is the latest
    version the library understands. */
@@ -47,7 +47,7 @@ typedef struct ControllerImage_Device ControllerImage_Device;
 extern DECLSPEC int SDLCALL ControllerImage_Init(void);
 
 extern DECLSPEC int SDLCALL ControllerImage_AddData(const void *buf, size_t buflen);
-extern DECLSPEC int SDLCALL ControllerImage_AddDataFromRWops(SDL_RWops *rwops, SDL_bool freerw);
+extern DECLSPEC int SDLCALL ControllerImage_AddDataFromIOStream(SDL_IOStream *iostrm, SDL_bool freeio);
 extern DECLSPEC int SDLCALL ControllerImage_AddDataFromFile(const char *fname);
 
 extern DECLSPEC ControllerImage_Device * SDLCALL ControllerImage_CreateGamepadDevice(SDL_Gamepad *gamepad);

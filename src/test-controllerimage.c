@@ -71,7 +71,7 @@ static int load_artset(const char *artset)
     return 0;
 }
 
-int SDL_AppInit(int argc, char *argv[])
+int SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     const char *title = argv[0] ? argv[0] : "test-controllerimage";
     SDL_Surface *surf = NULL;
@@ -98,6 +98,10 @@ int SDL_AppInit(int argc, char *argv[])
     SDL_DestroySurface(surf);
 
     SDL_SetTextureScaleMode(gamepad_front_texture, SDL_SCALEMODE_LINEAR);
+
+    if (argc < 2) {
+        return usage(argv[0]);
+    }
 
     for (i = 1; i < argc; i++) {
         const char *arg = argv[i];
@@ -152,7 +156,7 @@ int SDL_AppInit(int argc, char *argv[])
     return 0;  // we're ready, keep going.
 }
 
-int SDL_AppEvent(const SDL_Event *event)
+int SDL_AppEvent(void *appstate, const SDL_Event *event)
 {
     char numstr[64];
     SDL_JoystickID which;
@@ -305,7 +309,7 @@ static void render_axis(SDL_Renderer *renderer, SDL_PropertiesID gamepad_props, 
     }
 }
 
-int SDL_AppIterate(void)
+int SDL_AppIterate(void *appstate)
 {
     static const char *artsets[] = {
         "xbox360", "xboxone", "xboxseries",
@@ -424,10 +428,9 @@ int SDL_AppIterate(void)
     if (dumping) {
         char fname[64];
         const SDL_Rect r = { 0, 0, winw, winh };
-        SDL_Surface *surface = SDL_CreateSurface(winw, winh, SDL_PIXELFORMAT_BGRX8888);
+        SDL_Surface *surface = SDL_RenderReadPixels(renderer, &r);
         SDL_snprintf(fname, sizeof (fname), "img%03d.bmp", dump_theme_total);
         dump_theme_total++;
-        SDL_RenderReadPixels(renderer, &r, SDL_PIXELFORMAT_BGRX8888, surface->pixels, surface->pitch);
         SDL_SaveBMP(surface, fname);
         SDL_DestroySurface(surface);
 
@@ -444,7 +447,7 @@ int SDL_AppIterate(void)
     return 0;  // keep going.
 }
 
-void SDL_AppQuit(void)
+void SDL_AppQuit(void *appstate)
 {
     SDL_DestroyProperties(artset_properties);
     SDL_DestroyTexture(gamepad_front_texture);

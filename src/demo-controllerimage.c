@@ -96,7 +96,7 @@ static void LoadControllerImages(ControllerImage_Device *imgdev, SDL_Texture **t
     }
 }
 
-int SDL_AppInit(int argc, char *argv[])
+int SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD);
 
@@ -108,10 +108,10 @@ int SDL_AppInit(int argc, char *argv[])
 
     ControllerImage_Init();
 
-    SDL_version compiled;
+    SDL_Version compiled;
     CONTROLLERIMAGE_VERSION(&compiled);
     SDL_Log("Compiled against ControllerImage %d.%d.%d\n", compiled.major, compiled.minor, compiled.patch);
-    const SDL_version *linked = ControllerImage_LinkedVersion();
+    const SDL_Version *linked = ControllerImage_LinkedVersion();
     SDL_Log("Linked against ControllerImage %d.%d.%d\n", linked->major, linked->minor, linked->patch);
 
     ControllerImage_AddDataFromFile("controllerimage-standard.bin");
@@ -321,7 +321,7 @@ static IterateFn iterate_funcs[] = {
 
 static int current_iterate_func = 0;
 
-int SDL_AppEvent(const SDL_Event *event)
+int SDL_AppEvent(void *appstate, const SDL_Event *event)
 {
     switch (event->type) {
         case SDL_EVENT_MOUSE_MOTION:
@@ -409,7 +409,7 @@ int SDL_AppEvent(const SDL_Event *event)
     return 0;
 }
 
-int SDL_AppIterate(void)
+int SDL_AppIterate(void *appstate)
 {
     SDL_SetRenderDrawColor(renderer, 127, 127, 127, 255);
     SDL_RenderClear(renderer);
@@ -422,7 +422,7 @@ int SDL_AppIterate(void)
     return 0;
 }
 
-void SDL_AppQuit(void)
+void SDL_AppQuit(void *appstate)
 {
     for (int i = 0; i < MAX_FLOOD_TEXTURES; i++) {
         SDL_DestroyTexture(xbox_textures[i]);
