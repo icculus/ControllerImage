@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.16)
 
 project(ControllerImage)
 
-find_package(SDL3 CONFIG REQUIRED)
+if(TARGET SDL3::SDL3)
+    set(SDL3_LIBRARIES SDL3::SDL3)
+else()
+    find_package(SDL3 CONFIG REQUIRED)
+endif()
 
 add_library(controllerimage SHARED
     src/controllerimage.c
