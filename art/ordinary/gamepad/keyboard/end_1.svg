@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<g stroke-linecap="round" stroke-linejoin="round">
+<path d="m16 4c-3.3333 0-6.552 0.89573-8.8281 3.1719s-3.1719 5.4948-3.1719 8.8281v32c0 3.3333 0.89573 6.552 3.1719 8.8281s5.4948 3.1719 8.8281 3.1719h32c3.3333 0 6.552-0.89574 8.8281-3.1719s3.1719-5.4948 3.1719-8.8281v-32c0-3.3333-0.89574-6.552-3.1719-8.8281s-5.4948-3.1719-8.8281-3.1719z" color="#000000" style="-inkscape-stroke:none;paint-order:stroke markers fill"/>
+<path d="m16 8h32q8 0 8 8v32q0 8-8 8h-32q-8 0-8-8v-32q0-8 8-8m21 30h-3l-4-7v7h-3v-13h3l4 7v-7h3v13m-20-13h8v3h-5v2h5v3h-5v2h5v3h-8v-13m25 3.05v6.9q0.7-0.15 1.2-0.65l0.1-0.1q0.7-0.65 0.7-1.7v-2q0-1.05-0.7-1.7l-0.05-0.05h-0.05l-1.2-0.7m-3-3.05h2.5q2.3 0 3.85 1.6l0.05 0.1q1.6 1.5 1.6 3.8v2q0 2.3-1.6 3.85l-0.05 0.05q-1.55 1.6-3.85 1.6h-2.5v-13m-28-9v32q0 5 5 5h32q5 0 5-5v-32q0-5-5-5h-32q-5 0-5 5" color="#000000" fill="#fff" stroke-width="8" style="-inkscape-stroke:none;paint-order:stroke markers fill"/>
+</g>
+</svg>

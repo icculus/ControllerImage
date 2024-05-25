@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg preserveAspectRatio="none" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<g fill-rule="evenodd">
+<circle cx="50" cy="50" r="42.2" fill="#272727"/>
+<circle cx="50" cy="50" r="35.8" fill="#606060"/>
+<circle cx="50.058" cy="49.942" r="27.8" fill="#4e4e4e"/>
+</g>
+<path d="m50 9.5254-11.467 29.008-29.008 11.467 29.008 11.467 11.467 29.008 11.467-29.008 29.008-11.467-29.008-11.467-11.467-29.008z" fill="#4e4e4e"/>
+<circle cx="50" cy="50" r="42.2" fill="none" stroke="#151515" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" style="paint-order:normal"/>
+<path d="m59.55 41.6q-0.75-1.45-2.05-2.3-1.25-0.85-2.95-1.2-1.7-0.4-3.6-0.4h-9.55v24.8h5.45v-9.9h2.65l5.2 9.9h6.55l-6.3-10.5q2.6-0.45 4-2.3 1.35-1.85 1.35-4.45 0-2.2-0.75-3.65m-12.7 0.75h3.55q0.75 0 1.5 0.1t1.35 0.4 1 0.85q0.35 0.55 0.35 1.5 0 1.05-0.4 1.6-0.45 0.55-1.1 0.8-0.7 0.25-1.5 0.3t-1.55 0.05h-3.2z" fill="#8c8c8c"/>
+</svg>

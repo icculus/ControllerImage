@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg preserveAspectRatio="none" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<g fill-rule="evenodd">
+<circle cx="50" cy="50" r="46.25"/>
+<circle cx="50" cy="50" r="41.4" fill="#242424"/>
+<circle cx="50" cy="50" r="35.6" fill="#1d1d1d"/>
+<circle cx="50" cy="50" r="30.6" fill="#3b3b3b" stop-color="#000000" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+<circle cx="50" cy="50" r="25" fill="#535353"/>
+</g>
+<path d="m48.3 37.2h-4.45v24.8h14.95v-4h-10.5z" fill="#8c8c8c"/>
+</svg>

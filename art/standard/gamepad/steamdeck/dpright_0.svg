@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg preserveAspectRatio="none" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="d" x1="73.638" x2="63.362" y1="51" y2="51" gradientUnits="userSpaceOnUse">
+<stop stop-color="#D7D7D7" offset="0"/>
+<stop stop-color="#313131" offset="1"/>
+</linearGradient>
+<linearGradient id="c" x1="56.9" x2="71.5" y1="49" y2="49" gradientUnits="userSpaceOnUse">
+<stop stop-color="#4F4F4F" offset="0"/>
+<stop stop-color="#F5F5F5" offset="1"/>
+</linearGradient>
+<linearGradient id="b" x1="60.35" x2="73.65" y1="47.95" y2="47.95" gradientUnits="userSpaceOnUse">
+<stop stop-color="#626262" offset="0"/>
+<stop stop-color="#fff" offset="1"/>
+</linearGradient>
+<linearGradient id="a" x1="81.838" x2="67.562" y1="52.6" y2="52.6" gradientUnits="userSpaceOnUse">
+<stop stop-color="#404040" offset="0"/>
+<stop stop-color="#1B1B1B" offset="1"/>
+</linearGradient>
+</defs>
+<path d="m92.95 40.5q-0.6-4.35-5.35-5.35h-22.35v-22.65q-1-4.75-5.35-5.35-10.2-1.95-19.6 0-4.25 0.7-5.35 5.35v22.65h-22.45q-4.75 1-5.35 5.35-1.95 10.2 0 19.6 0.7 4.25 5.35 5.35h22.45v22.15q1.1 4.65 5.35 5.35 9.4 1.95 19.6 0 4.35-0.6 5.35-5.35v-22.15h22.35q4.65-1.1 5.35-5.35 1.95-9.4 0-19.6m-7.5 2.15q1.7 7.65 0 15.3h-20.2q-3.1 0-5.3 2.2t-2.2 5.3v20q-7.65 1.7-15.3 0v-20q0-3.1-2.2-5.3t-5.3-2.2h-20.3q-1.7-7.65 0-15.3h20.3q3.1 0 5.3-2.2t2.2-5.3v-20.5q7.65-1.7 15.3 0v20.5q0 3.1 2.2 5.3t5.3 2.2h20.2z" fill="url(#d)"/>
+<path d="m85.45 57.95q1.7-7.65 0-15.3h-20.2q-3.1 0-5.3-2.2t-2.2-5.3v-20.5q-7.65-1.7-15.3 0v20.5q0 3.1-2.2 5.3t-5.3 2.2h-20.3q-1.7 7.65 0 15.3h20.3q3.1 0 5.3 2.2t2.2 5.3v20q7.65 1.7 15.3 0v-20q0-3.1 2.2-5.3t5.3-2.2h20.2z" fill="url(#c)"/>
+<path d="m65.25 65.45v22.15q-1 4.75-5.35 5.35-10.2 1.95-19.6 0-4.25-0.7-5.35-5.35v-22.15h-22.45q-4.65-1.1-5.35-5.35-1.95-9.4 0-19.6 0.6-4.35 5.35-5.35h22.45v-22.65q1.1-4.65 5.35-5.35 9.4-1.95 19.6 0 4.35 0.6 5.35 5.35v22.65" fill="none" stroke="#1B1B1B" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+<path d="m57.75 65.45v20q-7.65 1.7-15.3 0v-7.8m0-1.3v-10.9q0-3.1-2.2-5.3t-5.3-2.2h-20.3q-1.7-7.65 0-15.3h20.3q3.1 0 5.3-2.2t2.2-5.3v-20.5q7.65-1.7 15.3 0v20.5" fill="none" stroke="#626262" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+<path d="m57.75 35.15q0 3.1 2.2 5.3t5.3 2.2h20.2q1.7 7.65 0 15.3h-20.2q-3.1 0-5.3 2.2t-2.2 5.3" fill="none" stroke="url(#b)" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+<path d="m65.25 35.15h22.35q4.75 1 5.35 5.35 1.95 10.2 0 19.6-0.7 4.25-5.35 5.35h-22.35" fill="none" stroke="url(#a)" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+</svg>

@@ -75,7 +75,7 @@ static void InitFlood(void)
     }
 }
 
-static void LoadControllerImages(ControllerImage_Device *imgdev, SDL_Texture **textures)
+static void LoadControllerImages(ControllerImage_GamepadDevice *imgdev, SDL_Texture **textures)
 {
     if (imgdev) {
         for (int i = 0; i < MAX_FLOOD_TEXTURES; i++) {
@@ -85,14 +85,14 @@ static void LoadControllerImages(ControllerImage_Device *imgdev, SDL_Texture **t
 
         for (int i = 0; i < MAX_FLOOD_TEXTURES; i++) {
             TextureFloodItem *item = &flood[i];
-            SDL_Surface *surf = ControllerImage_CreateSurfaceForButton(imgdev, item->button, item->size);
+            SDL_Surface *surf = ControllerImage_CreateSurfaceForButton(imgdev, item->button, item->size, 0);
             if (surf) {
                 textures[i] = SDL_CreateTextureFromSurface(renderer, surf);
                 SDL_SetTextureScaleMode(textures[i], SDL_SCALEMODE_LINEAR);
                 SDL_DestroySurface(surf);
             }
         }
-        ControllerImage_DestroyDevice(imgdev);
+        ControllerImage_DestroyGamepadDevice(imgdev);
     }
 }
 
@@ -245,22 +245,22 @@ static void IterateGamepad(void)
     const float buttonh = 34 * scale;
 
     if (((int) buttonw) != gamepad_button_size) {
-        ControllerImage_Device *imgdev_xbox = ControllerImage_CreateGamepadDeviceByIdString("xbox360");
-        ControllerImage_Device *imgdev_ps = ControllerImage_CreateGamepadDeviceByIdString("ps3");
+        ControllerImage_GamepadDevice *imgdev_xbox = ControllerImage_CreateGamepadDeviceByIdString("xbox360");
+        ControllerImage_GamepadDevice *imgdev_ps = ControllerImage_CreateGamepadDeviceByIdString("ps3");
         for (int i = 0; i < 4; i++) {
             SDL_Surface *surf;
             SDL_DestroyTexture(gamepad_xbox_buttons[i]);
-            surf = ControllerImage_CreateSurfaceForButton(imgdev_xbox, i + SDL_GAMEPAD_BUTTON_SOUTH, buttonw);
+            surf = ControllerImage_CreateSurfaceForButton(imgdev_xbox, i + SDL_GAMEPAD_BUTTON_SOUTH, buttonw, 0);
             gamepad_xbox_buttons[i] = SDL_CreateTextureFromSurface(renderer, surf);
             SDL_DestroySurface(surf);
             SDL_DestroyTexture(gamepad_ps_buttons[i]);
-            surf = ControllerImage_CreateSurfaceForButton(imgdev_ps, i + SDL_GAMEPAD_BUTTON_SOUTH, buttonw);
+            surf = ControllerImage_CreateSurfaceForButton(imgdev_ps, i + SDL_GAMEPAD_BUTTON_SOUTH, buttonw, 0);
             gamepad_ps_buttons[i] = SDL_CreateTextureFromSurface(renderer, surf);
             SDL_DestroySurface(surf);
         }
 
-        ControllerImage_DestroyDevice(imgdev_ps);
-        ControllerImage_DestroyDevice(imgdev_xbox);
+        ControllerImage_DestroyGamepadDevice(imgdev_ps);
+        ControllerImage_DestroyGamepadDevice(imgdev_xbox);
     
         gamepad_button_size = (int) buttonw;
     }

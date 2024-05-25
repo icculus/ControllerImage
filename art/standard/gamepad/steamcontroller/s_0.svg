@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg preserveAspectRatio="xMinYMin meet" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<g stroke-width="2">
+<ellipse cx="49.942" cy="50.058" rx="40.508" ry="40.458" fill="#1b1b1b" style="paint-order:markers fill stroke"/>
+<ellipse cx="49.942" cy="50.058" rx="36.508" ry="36.458" fill="#313131" style="paint-order:markers fill stroke"/>
+<circle cx="49.942" cy="50.058" r="31.058" fill="#626262" style="paint-order:markers fill stroke"/>
+</g>
+<circle cx="49.942" cy="50.058" r="27.058" fill="#4f4f4f" stroke-width="1.8905" style="paint-order:markers fill stroke"/>
+<path d="m53.65 50.75-3.9-9.9-3.9 9.9h7.8m-0.8-19.15 13.85 31.85h-7.95l-2.75-6.75h-12.35l-2.65 6.75h-7.75l13.8-31.85h5.8" fill="#87d638"/>
+</svg>

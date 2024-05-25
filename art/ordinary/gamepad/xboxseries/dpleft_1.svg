@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<g stroke-linecap="round" stroke-linejoin="round">
+<path d="m27 4c-2 0-4.2187 0.5624-5.8281 2.1719s-2.1719 3.8281-2.1719 5.8281v40c0 2 0.5624 4.2187 2.1719 5.8281s3.8281 2.1719 5.8281 2.1719h10c2 0 4.2187-0.5624 5.8281-2.1719s2.1719-3.8281 2.1719-5.8281v-7h7c2 0 4.2187-0.5624 5.8281-2.1719s2.1719-3.8281 2.1719-5.8281v-10c0-2-0.5624-4.2187-2.1719-5.8281s-3.8281-2.1719-5.8281-2.1719h-7v-7c0-2-0.5624-4.2187-2.1719-5.8281s-3.8281-2.1719-5.8281-2.1719zm0 8h10v11a4.0004 4.0004 0 0 0 4 4h11v10h-11a4.0004 4.0004 0 0 0-4 4v11h-10v-29z" color="#000000" style="-inkscape-stroke:none;paint-order:stroke markers fill"/>
+<path d="m12 19c-2 0-4.2187 0.5624-5.8281 2.1719s-2.1719 3.8281-2.1719 5.8281v10c0 2 0.5624 4.2187 2.1719 5.8281s3.8281 2.1719 5.8281 2.1719h11a4.0004 4.0004 0 0 0 4-4v-18a4 4 0 0 0-2.4688-3.6953 4 4 0 0 0-1.5312-0.30469zm0 8h7v10h-7z" color="#000000" style="-inkscape-stroke:none;paint-order:stroke markers fill"/>
+<path d="m23 23v-11q0-4 4-4h10q4 0 4 4v11h11q4 0 4 4v10q0 4-4 4h-11v11q0 4-4 4h-10q-4 0-4-4v-29" color="#000000" fill="#fff" stroke-width="8" style="-inkscape-stroke:none;paint-order:stroke markers fill"/>
+<path d="m23 23v18h-11q-4 0-4-4v-10q0-4 4-4h11" color="#000000" fill="#e73246" stroke-width="8" style="-inkscape-stroke:none;paint-order:stroke markers fill"/>
+</g>
+</svg>

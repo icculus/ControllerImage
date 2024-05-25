@@ -37,8 +37,8 @@ static int panic(const char *title, const char *msg)
 
 static void SDLCALL cleanup_imgdev(void *userdata, void *value)
 {
-    //SDL_Log("Destroying ControllerImage_Device %p", value);
-    ControllerImage_DestroyDevice((ControllerImage_Device *) value);
+    //SDL_Log("Destroying ControllerImage_GamepadDevice %p", value);
+    ControllerImage_DestroyGamepadDevice((ControllerImage_GamepadDevice *) value);
 }
 
 static void SDLCALL cleanup_texture(void *userdata, void *value)
@@ -61,7 +61,7 @@ static int load_artset(const char *artset)
         return panic("SDL_CreateProperties failed!", SDL_GetError());
     }
 
-    ControllerImage_Device *imgdev = ControllerImage_CreateGamepadDeviceByIdString(artset);
+    ControllerImage_GamepadDevice *imgdev = ControllerImage_CreateGamepadDeviceByIdString(artset);
     if (!imgdev) {
         return panic("ControllerImage_CreateGamepadDeviceByIdString failed!", SDL_GetError());
     }
@@ -175,7 +175,7 @@ int SDL_AppEvent(void *appstate, const SDL_Event *event)
                 if (!props) {
                     SDL_CloseGamepad(gamepad);
                 } else {
-                    ControllerImage_Device *imgdev = ControllerImage_CreateGamepadDevice(gamepad);
+                    ControllerImage_GamepadDevice *imgdev = ControllerImage_CreateGamepadDevice(gamepad);
                     if (imgdev) {
                         const SDL_JoystickGUID guid = SDL_GetGamepadInstanceGUID(which);
                         char guidstr[64];
@@ -249,7 +249,7 @@ static void update_gamepad_textures(SDL_PropertiesID gamepad_props, const int ne
         return;  // already good to go.
     }
 
-    ControllerImage_Device *imgdev = (ControllerImage_Device *) SDL_GetProperty(gamepad_props, PROP_IMGDEV, NULL);
+    ControllerImage_GamepadDevice *imgdev = (ControllerImage_GamepadDevice *) SDL_GetProperty(gamepad_props, PROP_IMGDEV, NULL);
     SDL_assert(imgdev != NULL);
 
     char propname[64];
@@ -263,7 +263,7 @@ static void update_gamepad_textures(SDL_PropertiesID gamepad_props, const int ne
         } else if (i == SDL_GAMEPAD_BUTTON_TOUCHPAD) {
             thissize *= 3;
         }
-        SDL_Surface *surf = ControllerImage_CreateSurfaceForButton(imgdev, i, thissize);
+        SDL_Surface *surf = ControllerImage_CreateSurfaceForButton(imgdev, i, thissize, 0);
         SDL_Texture *tex = surf ? SDL_CreateTextureFromSurface(renderer, surf) : NULL;
         SDL_DestroySurface(surf);
         SDL_snprintf(propname, sizeof (propname), PROP_TEXBUTTON_FMT, (int) i);
@@ -275,7 +275,7 @@ static void update_gamepad_textures(SDL_PropertiesID gamepad_props, const int ne
         if ((i != SDL_GAMEPAD_AXIS_LEFT_TRIGGER) && (i != SDL_GAMEPAD_AXIS_RIGHT_TRIGGER)) {
             thissize *= 2;
         }
-        SDL_Surface *surf = ControllerImage_CreateSurfaceForAxis(imgdev, i, thissize);
+        SDL_Surface *surf = ControllerImage_CreateSurfaceForAxis(imgdev, i, thissize, 0);
         SDL_Texture *tex = surf ? SDL_CreateTextureFromSurface(renderer, surf) : NULL;
         SDL_DestroySurface(surf);
         SDL_snprintf(propname, sizeof (propname), PROP_TEXAXIS_FMT, (int) i);
@@ -336,7 +336,7 @@ int SDL_AppIterate(void *appstate)
 
     if (dumping) {
         if (dump_theme_shot == 0) {
-            ControllerImage_Device *imgdev = NULL;
+            ControllerImage_GamepadDevice *imgdev = NULL;
             const char *artset = artsets[dump_theme];
 
             if (dump_theme >= SDL_arraysize(artsets)) {
@@ -350,7 +350,7 @@ int SDL_AppIterate(void *appstate)
                 dump_theme++;
                 return 0;  // skip this one, it's probably missing.
             } else {
-                ControllerImage_DestroyDevice(imgdev);
+                ControllerImage_DestroyGamepadDevice(imgdev);
                 if (load_artset(artset) < 0) {
                     return -1;  // we're done! for the wrong reasons!!
                 }

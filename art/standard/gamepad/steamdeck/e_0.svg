@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<g stroke-width="2">
+<circle cx="50" cy="50" r="40.4" fill="#1b1b1b" style="paint-order:markers fill stroke"/>
+<circle cx="50" cy="50" r="36.4" fill="#313131" style="paint-order:markers fill stroke"/>
+<circle cx="50" cy="50" r="31" fill="#626262" style="paint-order:markers fill stroke"/>
+<circle cx="50" cy="50" r="27" fill="#4f4f4f" style="paint-order:markers fill stroke"/>
+</g>
+<path d="m37.539 33.434v33.133c5.7616-0.02018 11.525 0.04145 17.285-0.03284 3.5221-0.20773 7.4325-1.4438 9.242-4.7145 1.2901-2.5998 1.1262-5.8641-0.24167-8.4049-1.0798-1.8966-2.9669-3.2469-5.0514-3.8341 4.0931-1.7331 5.7836-6.9839 4.1434-10.973-1.0209-3.0249-4.0087-5.4287-7.2881-5.1734h-18.09zm7.6543 6.5332c2.7335 0.01674 5.4697-0.03397 8.2014 0.02624 1.9561 0.21904 2.855 2.4615 2.4659 4.2028-0.19373 1.7531-2.0088 2.8369-3.6696 2.6303h-6.9978v-6.8594zm0 12.879c3.0893 0.02051 6.1824-0.04161 9.2694 0.03214 2.8498 0.52707 3.6385 4.8285 1.3276 6.4817-1.3334 1.079-3.1092 0.62127-4.6822 0.72051h-5.9147v-7.2344z" fill="#d7d7d7" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal"/>
+</svg>

@@ -1,9 +1,0 @@
-<svg width="100px" height="100px" preserveAspectRatio="none" version="1.1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
- <g>
-  <circle cx="50" cy="50" r="40.4" fill="#202020" stop-color="#000000" style="-inkscape-stroke:none;font-variation-settings:normal;paint-order:markers fill stroke"/>
-  <circle cx="50" cy="50" r="36.4" fill="#353535" stop-color="#000000" style="-inkscape-stroke:none;font-variation-settings:normal;paint-order:markers fill stroke"/>
-  <circle cx="50" cy="50" r="33" fill="#616161" stroke-width="2" style="paint-order:markers fill stroke"/>
-  <circle cx="50" cy="50" r="30" fill="#535353" stop-color="#000000" style="-inkscape-stroke:none;font-variation-settings:normal;paint-order:markers fill stroke"/>
- </g>
- <circle cx="50" cy="50" r="19.8" fill="none" stop-color="#000000" stroke="#d6d6d6" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" style="-inkscape-stroke:none;font-variation-settings:normal"/>
-</svg>

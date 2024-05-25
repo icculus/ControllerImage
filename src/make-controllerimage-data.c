@@ -483,7 +483,7 @@ static void process_theme_dir(const char *theme, const char *path)
     static const char magic[8] = { 'C', 'T', 'I', 'M', 'G', '\r', '\n', '\0' };
 
     fwrite(magic, 1, sizeof (magic), f);
-    writeui16(f, 2);  // version number
+    writeui16(f, 3);  // version number
     writeui16(f, num_strings);
     for (int i = 0; i < num_strings; i++) {
         fwrite(strings[i], 1, strlen(strings[i]) + 1, f);
