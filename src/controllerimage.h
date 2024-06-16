@@ -23,15 +23,13 @@ extern "C" {
 
 #define CONTROLLERIMAGE_MAJOR_VERSION   0
 #define CONTROLLERIMAGE_MINOR_VERSION   0
-#define CONTROLLERIMAGE_PATCHLEVEL      1
+#define CONTROLLERIMAGE_MICRO_VERSION   1
 
-#define CONTROLLERIMAGE_VERSION(X) {                                                   \
-    (X)->major = CONTROLLERIMAGE_MAJOR_VERSION; \
-    (X)->minor = CONTROLLERIMAGE_MINOR_VERSION; \
-    (X)->patch = CONTROLLERIMAGE_PATCHLEVEL; \
-}
+#define CONTROLLERIMAGE_VERSION \
+    SDL_VERSIONNUM(CONTROLLERIMAGE_MAJOR_VERSION, CONTROLLERIMAGE_MINOR_VERSION, CONTROLLERIMAGE_MICRO_VERSION)
 
-extern DECLSPEC const SDL_Version * SDLCALL ControllerImage_LinkedVersion(void);
+/* CONTROLLERIMAGE_VERSION is the version of this header you compiled against, ControllerImage_GetVersion() is the version you linked against. */
+extern SDL_DECLSPEC int SDLCALL ControllerImage_GetVersion(void);
 
 /* as the datafile format changes, this number bumps. This is the latest
    version the library understands. */
@@ -44,26 +42,26 @@ extern DECLSPEC const SDL_Version * SDLCALL ControllerImage_LinkedVersion(void);
 
 typedef struct ControllerImage_Device ControllerImage_Device;
 
-extern DECLSPEC int SDLCALL ControllerImage_Init(void);
+extern SDL_DECLSPEC int SDLCALL ControllerImage_Init(void);
 
-extern DECLSPEC int SDLCALL ControllerImage_AddData(const void *buf, size_t buflen);
-extern DECLSPEC int SDLCALL ControllerImage_AddDataFromIOStream(SDL_IOStream *iostrm, SDL_bool freeio);
-extern DECLSPEC int SDLCALL ControllerImage_AddDataFromFile(const char *fname);
+extern SDL_DECLSPEC int SDLCALL ControllerImage_AddData(const void *buf, size_t buflen);
+extern SDL_DECLSPEC int SDLCALL ControllerImage_AddDataFromIOStream(SDL_IOStream *iostrm, SDL_bool freeio);
+extern SDL_DECLSPEC int SDLCALL ControllerImage_AddDataFromFile(const char *fname);
 
-extern DECLSPEC ControllerImage_Device * SDLCALL ControllerImage_CreateGamepadDevice(SDL_Gamepad *gamepad);
-extern DECLSPEC ControllerImage_Device * SDLCALL ControllerImage_CreateGamepadDeviceByInstance(SDL_JoystickID jsid);
-extern DECLSPEC ControllerImage_Device * SDLCALL ControllerImage_CreateGamepadDeviceByIdString(const char *str);
+extern SDL_DECLSPEC ControllerImage_Device * SDLCALL ControllerImage_CreateGamepadDevice(SDL_Gamepad *gamepad);
+extern SDL_DECLSPEC ControllerImage_Device * SDLCALL ControllerImage_CreateGamepadDeviceByInstance(SDL_JoystickID jsid);
+extern SDL_DECLSPEC ControllerImage_Device * SDLCALL ControllerImage_CreateGamepadDeviceByIdString(const char *str);
 
-extern DECLSPEC void SDLCALL ControllerImage_DestroyDevice(ControllerImage_Device *device);
+extern SDL_DECLSPEC void SDLCALL ControllerImage_DestroyDevice(ControllerImage_Device *device);
 
-extern DECLSPEC const char *ControllerImage_GetDeviceType(ControllerImage_Device *device);
-extern DECLSPEC SDL_Surface *ControllerImage_CreateSurfaceForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis, int size);
-extern DECLSPEC SDL_Surface *ControllerImage_CreateSurfaceForButton(ControllerImage_Device *device, SDL_GamepadButton button, int size);
+extern SDL_DECLSPEC const char *ControllerImage_GetDeviceType(ControllerImage_Device *device);
+extern SDL_DECLSPEC SDL_Surface *ControllerImage_CreateSurfaceForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis, int size);
+extern SDL_DECLSPEC SDL_Surface *ControllerImage_CreateSurfaceForButton(ControllerImage_Device *device, SDL_GamepadButton button, int size);
 
-extern DECLSPEC const char *ControllerImage_GetSVGForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis);
-extern DECLSPEC const char *ControllerImage_GetSVGForButton(ControllerImage_Device *device, SDL_GamepadButton button);
+extern SDL_DECLSPEC const char *ControllerImage_GetSVGForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis);
+extern SDL_DECLSPEC const char *ControllerImage_GetSVGForButton(ControllerImage_Device *device, SDL_GamepadButton button);
 
-extern DECLSPEC void SDLCALL ControllerImage_Quit(void);
+extern SDL_DECLSPEC void SDLCALL ControllerImage_Quit(void);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

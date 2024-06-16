@@ -85,7 +85,7 @@ int SDL_AppInit(void **appstate, int argc, char *argv[])
         return panic("ControllerImage_Init failed!", SDL_GetError());
     } else if ((window = SDL_CreateWindow(title, winw, winh, SDL_WINDOW_RESIZABLE|SDL_WINDOW_HIDDEN)) == NULL) {
         return panic("SDL_CreateWindow failed!", SDL_GetError());
-    } else if ((renderer = SDL_CreateRenderer(window, NULL, 0)) == NULL) {
+    } else if ((renderer = SDL_CreateRenderer(window, NULL)) == NULL) {
         return panic("SDL_CreateRenderer failed!", SDL_GetError());
     } else if ((surf = SDL_LoadBMP("gamepad_front.bmp")) == NULL) {
         return panic("Failed to load gamepad_front.bmp!", SDL_GetError());

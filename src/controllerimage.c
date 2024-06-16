@@ -81,14 +81,9 @@ static SDL_PropertiesID DeviceGuidMap = 0;
 static char **StringCache = NULL;
 static int NumCachedStrings = 0;
 
-const SDL_Version *ControllerImage_LinkedVersion(void)
+int ControllerImage_GetVersion(void)
 {
-    static const SDL_Version linked_version = {
-        CONTROLLERIMAGE_MAJOR_VERSION,
-        CONTROLLERIMAGE_MINOR_VERSION,
-        CONTROLLERIMAGE_PATCHLEVEL
-    };
-    return &linked_version;
+    return CONTROLLERIMAGE_VERSION;
 }
 
 int ControllerImage_Init(void)

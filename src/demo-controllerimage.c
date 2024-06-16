@@ -104,15 +104,14 @@ int SDL_AppInit(void **appstate, int argc, char *argv[])
     winh = 768;
 
     window = SDL_CreateWindow(argv[0], winw, winh, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
-    renderer = SDL_CreateRenderer(window, NULL, SDL_RENDERER_PRESENTVSYNC);
+    renderer = SDL_CreateRenderer(window, NULL);
 
     ControllerImage_Init();
 
-    SDL_Version compiled;
-    CONTROLLERIMAGE_VERSION(&compiled);
-    SDL_Log("Compiled against ControllerImage %d.%d.%d\n", compiled.major, compiled.minor, compiled.patch);
-    const SDL_Version *linked = ControllerImage_LinkedVersion();
-    SDL_Log("Linked against ControllerImage %d.%d.%d\n", linked->major, linked->minor, linked->patch);
+    const int compiled = CONTROLLERIMAGE_VERSION;
+    SDL_Log("Compiled against ControllerImage %d.%d.%d\n", SDL_VERSIONNUM_MAJOR(compiled), SDL_VERSIONNUM_MINOR(compiled), SDL_VERSIONNUM_MICRO(compiled));
+    const int linked = ControllerImage_GetVersion();
+    SDL_Log("Linked against ControllerImage %d.%d.%d\n", SDL_VERSIONNUM_MAJOR(linked), SDL_VERSIONNUM_MINOR(linked), SDL_VERSIONNUM_MICRO(linked));
 
     ControllerImage_AddDataFromFile("controllerimage-standard.bin");
 
@@ -177,10 +176,10 @@ typedef void(*IterateFn)(void);
 
 static void IterateSlide(SDL_Texture *texture)
 {
-    int w, h;
-    SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-    const float scale = (((float) winw) / ((float) w));
-    const float fh = ((float) h) * scale;
+    float w, h;
+    SDL_GetTextureSize(texture, &w, &h);
+    const float scale = (((float) winw) / w);;
+    const float fh = h * scale;
     const float fy = (((float) winh) - fh) / 2.0f;
     const SDL_FRect dstrect = { 0.0f, fy, (float) winw, fh };
     SDL_RenderTexture(renderer, texture, NULL, &dstrect);
