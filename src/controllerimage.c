@@ -73,11 +73,11 @@ typedef struct ControllerImage_DeviceInfo
     const char *inherits;
     int num_items;
     ControllerImage_Item *items;
-    int refcount;
 } ControllerImage_DeviceInfo;
 
 
-static SDL_PropertiesID DeviceGuidMap = 0;
+static SDL_PropertiesID DeviceInfoMap = 0;
+static SDL_PropertiesID GuidToDeviceTypeMap = 0;
 static char **StringCache = NULL;
 static int NumCachedStrings = 0;
 
@@ -88,8 +88,14 @@ int ControllerImage_GetVersion(void)
 
 int ControllerImage_Init(void)
 {
-    DeviceGuidMap = SDL_CreateProperties();
-    if (!DeviceGuidMap) {
+    DeviceInfoMap = SDL_CreateProperties();
+    if (!DeviceInfoMap) {
+        return -1;
+    }
+    GuidToDeviceTypeMap = SDL_CreateProperties();
+    if (!GuidToDeviceTypeMap) {
+        SDL_DestroyProperties(DeviceInfoMap);
+        DeviceInfoMap = 0;
         return -1;
     }
     return 0;
@@ -97,8 +103,9 @@ int ControllerImage_Init(void)
 
 void ControllerImage_Quit(void)
 {
-    SDL_DestroyProperties(DeviceGuidMap);
-    DeviceGuidMap = 0;
+    SDL_DestroyProperties(DeviceInfoMap);
+    SDL_DestroyProperties(GuidToDeviceTypeMap);
+    DeviceInfoMap = GuidToDeviceTypeMap = 0;
     for (int i = 0; i < NumCachedStrings; i++) {
         SDL_free(StringCache[i]);
     }
@@ -164,17 +171,7 @@ static SDL_bool readui16(const Uint8 **_ptr, size_t *_buflen, Uint16 *_ui16)
 
 static void SDLCALL CleanupDeviceInfo(void *userdata, void *value)
 {
-    // the same `ControllerImage_DeviceInfo*` is used for each matching
-    // string/guid lookup in the hash table, so nuking it is actually a
-    // refcount decrement until all references are gone.
-    // the refcount isn't atomic, since it should only change on database
-    // load and deinit...we just need to make sure we don't double-free.
-    ControllerImage_DeviceInfo *info = (ControllerImage_DeviceInfo *) value;
-    if (info->refcount == 1) {
-        SDL_free(value);  // this is the ControllerImage_DeviceInfo and also its items in the same buffer. Strings live elsewhere and are reused.
-    } else {
-        info->refcount--;
-    }
+    SDL_free(value);
 }
 
 int ControllerImage_AddData(const void *buf, size_t buflen)
@@ -185,7 +182,7 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
     Uint16 num_strings = 0;
     Uint16 version = 0;
 
-    if (!DeviceGuidMap) {
+    if (!DeviceInfoMap) {
         return SDL_SetError("Not initialized");
     } else if (buflen < 20) {
         goto bogus_data;
@@ -265,14 +262,13 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
             info->items[j].svg = strings[itemimage];
         }
 
-        if (SDL_SetPropertyWithCleanup(DeviceGuidMap, strings[devid], info, CleanupDeviceInfo, NULL) == -1) {
-            SDL_free(info);
+        if (SDL_SetPropertyWithCleanup(DeviceInfoMap, strings[devid], info, CleanupDeviceInfo, NULL) == -1) {
             goto failed;
         }
 
-        info->refcount = 1;
-
-        // now put the same `info` into the database for each associated GUID...
+        // now map out GUIDs to device types, so we can get to the device info of whatever
+        // the latest loaded theme is, even though the GUIDs are probably only shipped
+        // with the "standard" database.
         for (Uint16 j = 0; j < num_guids; j++) {
             SDL_GUID guid;
             if (buflen < sizeof (guid.data)) {
@@ -290,12 +286,21 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
                 goto bogus_data;
             }
 
-            // !!! FIXME: this does not work with overriding controllers with a second data set (so you load `standard` and then load `kenney` on top),
-            // !!! FIXME:  so looking up a device by GUID will find the original images, not the overridden ones.
-            // If this fails for some reason, go on without this guid. Do NOT SDL_free(info), it's already in the database, refcounted.
-            if (SDL_SetPropertyWithCleanup(DeviceGuidMap, guidstr, info, CleanupDeviceInfo, NULL) == 0) {
-                info->refcount++;
-            }
+            // If this fails for some reason, go on without this guid.
+
+            // No cleanup function; this is using a string in the StringCache.
+            SDL_SetProperty(GuidToDeviceTypeMap, guidstr, strings[devid]);
+
+            // stick a GUID in there that's just the USB VID/PID values, which
+            // might catch some variations on the same device.
+            char vidpid[33];
+            SDL_memset(vidpid, '0', sizeof (vidpid) - 1);  // blank it out.
+            SDL_memcpy(&vidpid[8], &guidstr[8], 4);         // copy in VID
+            SDL_memcpy(&vidpid[16], &guidstr[16], 4);       // copy in PID
+            vidpid[32] = '\0';   // null-terminate it.
+
+            // No cleanup function; this is using a string in the StringCache.
+            SDL_SetProperty(GuidToDeviceTypeMap, vidpid, strings[devid]);
         }
     }
 
@@ -337,7 +342,7 @@ static void CollectGamepadImages(ControllerImage_DeviceInfo *info, char **axes, 
     if (!info) {
         return;
     } else if (info->inherits) {
-        CollectGamepadImages((ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceGuidMap, info->inherits, NULL), axes, buttons);
+        CollectGamepadImages((ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceInfoMap, info->inherits, NULL), axes, buttons);
     }
 
     const ControllerImage_Item *leftxy = NULL;
@@ -454,7 +459,17 @@ static ControllerImage_Device *CreateGamepadDeviceFromInfo(ControllerImage_Devic
 
 ControllerImage_Device *ControllerImage_CreateGamepadDeviceByIdString(const char *str)
 {
-    return CreateGamepadDeviceFromInfo((ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceGuidMap, str, NULL));
+    const char *devtype = SDL_GetProperty(GuidToDeviceTypeMap, str, NULL);  // in case it's a GUID.
+    if (devtype) {
+        str = devtype;
+    }
+    return CreateGamepadDeviceFromInfo((ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceInfoMap, str, NULL));
+}
+
+static ControllerImage_DeviceInfo *FindDeviceInfoByGuidStr(const char *guidstr)
+{
+    const char *devtype = SDL_GetProperty(GuidToDeviceTypeMap, guidstr, NULL);
+    return (ControllerImage_DeviceInfo *) (devtype ? SDL_GetProperty(DeviceInfoMap, devtype, NULL) : NULL);
 }
 
 ControllerImage_Device *ControllerImage_CreateGamepadDeviceByInstance(SDL_JoystickID jsid)
@@ -467,23 +482,36 @@ ControllerImage_Device *ControllerImage_CreateGamepadDeviceByInstance(SDL_Joysti
     char guidstr[33];
     SDL_GUIDToString(guid, guidstr, sizeof (guidstr));
 
-    ControllerImage_DeviceInfo *info = (ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceGuidMap, guidstr, NULL);
-
+    ControllerImage_DeviceInfo *info = FindDeviceInfoByGuidStr(guidstr);
     if (!info) {
         guidstr[4] = guidstr[5] = guidstr[6] = guidstr[7] = '0';  // clear out the CRC, see if it matches...
-        info = (ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceGuidMap, guidstr, NULL);
+        info = FindDeviceInfoByGuidStr(guidstr);
+    }
+
+    if (!info) {
+        // maybe just the USB VID/PID...?
+        SDL_GUID vidpidguid;
+        SDL_zero(vidpidguid);
+        Uint16 *guid16 = (Uint16 *) vidpidguid.data;
+        // you have to use SDL_GetGamepadInstance* instead of just the VID/PID chunks of the GUID,
+        // since SDL will give you info for some drivers that isn't representd in the GUID!
+        guid16[2] = SDL_Swap16LE(SDL_GetGamepadInstanceVendor(jsid));
+        guid16[4] = SDL_Swap16LE(SDL_GetGamepadInstanceProduct(jsid));
+        SDL_GUIDToString(vidpidguid, guidstr, sizeof (guidstr));
+        info = FindDeviceInfoByGuidStr(guidstr);
     }
 
     if (!info) {
         // since these are the most common things, we might have a fallback specific to this device type...
         const char *typestr = SDL_GetGamepadStringForType(SDL_GetGamepadInstanceType(jsid));
         if (typestr) {
-            info = (ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceGuidMap, typestr, NULL);
+            info = (ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceInfoMap, typestr, NULL);
         }
     }
 
     if (!info) {
-        info = (ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceGuidMap, "xbox360", NULL);  // if all else fails, this is probably most likely to match...
+        // !!! FIXME: the most-likely-default string should be in the database, so this can work in later times when likely defaults change by supplying a new database and without updating the code.
+        info = (ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceInfoMap, "xbox360", NULL);  // if all else fails, this is probably most likely to match...
     }
 
     return CreateGamepadDeviceFromInfo(info);
@@ -497,7 +525,6 @@ const char *ControllerImage_GetDeviceType(ControllerImage_Device *device)
     }
     return device->device_type;
 }
-
 
 ControllerImage_Device *ControllerImage_CreateGamepadDevice(SDL_Gamepad *gamepad)
 {
