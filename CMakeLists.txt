@@ -8,7 +8,7 @@ else()
     find_package(SDL3 CONFIG REQUIRED)
 endif()
 
-add_library(controllerimage SHARED
+add_library(controllerimage STATIC
     src/controllerimage.c
 )
 target_include_directories(controllerimage PRIVATE
