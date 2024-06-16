@@ -180,7 +180,7 @@ int SDL_AppEvent(void *appstate, const SDL_Event *event)
                         const SDL_JoystickGUID guid = SDL_GetGamepadInstanceGUID(which);
                         char guidstr[64];
                         guidstr[0] = '\0';
-                        SDL_GUIDToString((SDL_GUID) guid, guidstr, sizeof (guidstr));
+                        SDL_GUIDToString(*((SDL_GUID *) &guid), guidstr, sizeof (guidstr));
                         SDL_Log("Adding gamepad %s ('%s', guid %s)", numstr, SDL_GetGamepadInstanceName(which), guidstr);
                         SDL_Log("ControllerImage device type: %s", ControllerImage_GetDeviceType(imgdev));
                         SDL_SetPropertyWithCleanup(props, PROP_IMGDEV, imgdev, cleanup_imgdev, NULL);
