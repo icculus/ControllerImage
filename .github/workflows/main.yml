@@ -15,7 +15,7 @@ jobs:
     steps:
     - name: Set up SDL
       id: sdl
-      uses: libsdl-org/setup-sdl@v1
+      uses: libsdl-org/setup-sdl@main
       with:
         version: 3-head
         add-to-environment: true
