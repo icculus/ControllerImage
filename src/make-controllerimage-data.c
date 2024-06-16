@@ -300,7 +300,6 @@ static void parse_device_guids_file(DeviceInfo *device, const char *path)
     for (int i = 0; lines[i] != NULL; i++) {
         char *start = lines[i];
         char *ptr;
-        int i;
 
         // trim whitespace on the left.
         while (*start && isspace(*start)) {
@@ -329,15 +328,15 @@ static void parse_device_guids_file(DeviceInfo *device, const char *path)
 
         Guid guid;
         int bad = 0;
-        for (int i = 0; (i < 16) && !bad; i++) {
-            const char ch1 = start[i*2];
+        for (int j = 0; (j < 16) && !bad; j++) {
+            const char ch1 = start[j*2];
             if (ch1 == '\0') {
                 bad = 1;
             } else {
-                const char ch2 = start[(i * 2) + 1];
+                const char ch2 = start[(j * 2) + 1];
                 const int ich1 = convert_hex_char(ch1, &bad);
                 const int ich2 = convert_hex_char(ch2, &bad);
-                guid.data[i] = (unsigned char) ((ich1 << 4) | ich2);
+                guid.data[j] = (unsigned char) ((ich1 << 4) | ich2);
             }
         }
 
