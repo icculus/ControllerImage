@@ -45,7 +45,7 @@ typedef struct ControllerImage_Device ControllerImage_Device;
 extern SDL_DECLSPEC int SDLCALL ControllerImage_Init(void);
 
 extern SDL_DECLSPEC int SDLCALL ControllerImage_AddData(const void *buf, size_t buflen);
-extern SDL_DECLSPEC int SDLCALL ControllerImage_AddDataFromIOStream(SDL_IOStream *iostrm, SDL_bool freeio);
+extern SDL_DECLSPEC int SDLCALL ControllerImage_AddDataFromIOStream(SDL_IOStream *iostrm, bool freeio);
 extern SDL_DECLSPEC int SDLCALL ControllerImage_AddDataFromFile(const char *fname);
 
 extern SDL_DECLSPEC ControllerImage_Device * SDLCALL ControllerImage_CreateGamepadDevice(SDL_Gamepad *gamepad);

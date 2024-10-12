@@ -76,7 +76,7 @@ int SDL_AppInit(void **appstate, int argc, char *argv[])
     const char *title = argv[0] ? argv[0] : "test-controllerimage";
     SDL_Surface *surf = NULL;
     const char *artset = NULL;
-    SDL_bool added_database = SDL_FALSE;
+    bool added_database = false;
     int i;
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD) < 0) {
@@ -121,7 +121,7 @@ int SDL_AppInit(void **appstate, int argc, char *argv[])
                 if (ControllerImage_AddDataFromFile(arg) < 0) {
                     return panic("ControllerImage_AddDataFromFile failed!", SDL_GetError());
                 }
-                added_database = SDL_TRUE;
+                added_database = true;
             } else if (SDL_strcmp(arg, "dumptheme") == 0) {
                 dump_theme = 0;
                 dump_theme_title = argv[++i];
@@ -325,7 +325,7 @@ int SDL_AppIterate(void *appstate)
     const int w = 512;
     const int h = 317;
 
-    const SDL_bool dumping = (dump_theme >= 0);
+    const bool dumping = (dump_theme >= 0);
     const float scale = (((float) winw) / ((float) w));
     const float fh = ((float) h) * scale;
     const float fy = (((float) winh) - fh) / 2.0f;
