@@ -96,7 +96,7 @@ static void LoadControllerImages(ControllerImage_Device *imgdev, SDL_Texture **t
     }
 }
 
-int SDL_AppInit(void **appstate, int argc, char *argv[])
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD);
 
@@ -169,7 +169,7 @@ int SDL_AppInit(void **appstate, int argc, char *argv[])
 
     SDL_ShowWindow(window);
 
-    return 0;
+    return SDL_APP_CONTINUE;
 }
 
 typedef void(*IterateFn)(void);
@@ -320,7 +320,7 @@ static IterateFn iterate_funcs[] = {
 
 static int current_iterate_func = 0;
 
-int SDL_AppEvent(void *appstate, const SDL_Event *event)
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
     switch (event->type) {
         case SDL_EVENT_MOUSE_MOTION:
@@ -329,7 +329,7 @@ int SDL_AppEvent(void *appstate, const SDL_Event *event)
             break;
 
         case SDL_EVENT_QUIT:
-            return 1;  // we're done.
+            return SDL_APP_SUCCESS;  // we're done.
 
         case SDL_EVENT_GAMEPAD_ADDED:
             //LoadControllerImages(ControllerImage_CreateGamepadDeviceByInstance(event->gdevice.which));
@@ -346,7 +346,7 @@ int SDL_AppEvent(void *appstate, const SDL_Event *event)
             break;
 
         case SDL_EVENT_KEY_DOWN:
-            switch (event->key.keysym.sym) {
+            switch (event->key.key) {
                 case SDLK_RIGHT:
                     current_iterate_func++;
                     if (current_iterate_func >= SDL_arraysize(iterate_funcs)) {
@@ -365,19 +365,19 @@ int SDL_AppEvent(void *appstate, const SDL_Event *event)
                     selected_controller = -1;
                     break;
 
-                case SDLK_n:
+                case SDLK_N:
                     selected_controller = -1;
                     break;
 
-                case SDLK_x:
+                case SDLK_X:
                     selected_controller = 0;
                     break;
 
-                case SDLK_p:
+                case SDLK_P:
                     selected_controller = 1;
                     break;
 
-                case SDLK_f:
+                case SDLK_F:
                     do_flood++;
                     if (do_flood == 3) {
                         for (int i = 0; i < MAX_FLOOD_TEXTURES; i++) {
@@ -405,10 +405,10 @@ int SDL_AppEvent(void *appstate, const SDL_Event *event)
         default: break;
     }
 
-    return 0;
+    return SDL_APP_CONTINUE;
 }
 
-int SDL_AppIterate(void *appstate)
+SDL_AppResult SDL_AppIterate(void *appstate)
 {
     SDL_SetRenderDrawColor(renderer, 127, 127, 127, 255);
     SDL_RenderClear(renderer);
@@ -418,10 +418,10 @@ int SDL_AppIterate(void *appstate)
     }
 
     SDL_RenderPresent(renderer);
-    return 0;
+    return SDL_APP_CONTINUE;
 }
 
-void SDL_AppQuit(void *appstate)
+void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
     for (int i = 0; i < MAX_FLOOD_TEXTURES; i++) {
         SDL_DestroyTexture(xbox_textures[i]);
