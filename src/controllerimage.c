@@ -281,10 +281,7 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
             buflen -= sizeof (guid.data);
 
             char guidstr[33];
-            if (SDL_GUIDToString(guid, guidstr, sizeof (guidstr)) < 0) {
-                SDL_assert(!"this probably shouldn't fail...");
-                goto bogus_data;
-            }
+            SDL_GUIDToString(guid, guidstr, sizeof (guidstr));
 
             // If this fails for some reason, go on without this guid.
 
