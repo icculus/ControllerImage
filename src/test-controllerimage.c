@@ -79,7 +79,7 @@ int SDL_AppInit(void **appstate, int argc, char *argv[])
     bool added_database = false;
     int i;
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD) < 0) {
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
         return panic("SDL_Init failed!", SDL_GetError());
     } else if (ControllerImage_Init() < 0) {
         return panic("ControllerImage_Init failed!", SDL_GetError());
