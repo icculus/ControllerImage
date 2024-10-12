@@ -114,7 +114,7 @@ void ControllerImage_Quit(void)
     NumCachedStrings = 0;
 }
 
-static SDL_bool readstr(const Uint8 **_ptr, size_t *_buflen, char **_str)
+static bool readstr(const Uint8 **_ptr, size_t *_buflen, char **_str)
 {
     const Uint8 *ptr = *_ptr;
     const size_t total = *_buflen;
@@ -133,12 +133,12 @@ static SDL_bool readstr(const Uint8 **_ptr, size_t *_buflen, char **_str)
             if (!finalstr) {
                 void *expanded = SDL_realloc(StringCache, (NumCachedStrings + 1) * sizeof (char *));
                 if (!expanded) {
-                    return SDL_FALSE;
+                    return false;
                 }
                 StringCache = (char **) expanded;
                 finalstr = SDL_strdup((const char *) ptr);
                 if (!finalstr) {
-                    return SDL_FALSE;
+                    return false;
                 }
 
                 StringCache[NumCachedStrings++] = finalstr;
@@ -147,26 +147,26 @@ static SDL_bool readstr(const Uint8 **_ptr, size_t *_buflen, char **_str)
             *_str = finalstr;
             *_buflen -= i;
             *_ptr += i;
-            return SDL_TRUE;
+            return true;
         }
     }
 
     SDL_SetError("Unexpected end of data");
-    return SDL_FALSE;
+    return false;
 }
 
-static SDL_bool readui16(const Uint8 **_ptr, size_t *_buflen, Uint16 *_ui16)
+static bool readui16(const Uint8 **_ptr, size_t *_buflen, Uint16 *_ui16)
 {
     if (*_buflen < 2) {
         SDL_SetError("Unexpected end of data");
-        return SDL_FALSE;
+        return false;
     }
 
     const Uint8 *ptr = *_ptr;
     *_ui16 = (((Uint16) ptr[0]) << 8) | ((Uint16) ptr[1]);
     *_ptr += 2;
     *_buflen -= 2;
-    return SDL_TRUE;
+    return true;
 }
 
 static void SDLCALL CleanupDeviceInfo(void *userdata, void *value)
@@ -315,7 +315,7 @@ failed:
     return -1;
 }
 
-int ControllerImage_AddDataFromIOStream(SDL_IOStream *iostrm, SDL_bool freeio)
+int ControllerImage_AddDataFromIOStream(SDL_IOStream *iostrm, bool freeio)
 {
     Uint8 *buf = NULL;
     size_t buflen = 0;
@@ -334,7 +334,7 @@ int ControllerImage_AddDataFromIOStream(SDL_IOStream *iostrm, SDL_bool freeio)
 int ControllerImage_AddDataFromFile(const char *fname)
 {
     SDL_IOStream *iostrm = SDL_IOFromFile(fname, "rb");
-    return iostrm ? ControllerImage_AddDataFromIOStream(iostrm, SDL_TRUE) : -1;
+    return iostrm ? ControllerImage_AddDataFromIOStream(iostrm, true) : -1;
 }
 
 static void CollectGamepadImages(ControllerImage_DeviceInfo *info, char **axes, char **buttons)
