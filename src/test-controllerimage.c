@@ -22,7 +22,7 @@ static int dump_theme_shot = 0;
 static int dump_theme_total = 0;
 static const char *dump_theme_title = NULL;
 
-static int panic(const char *title, const char *msg)
+static SDL_AppResult panic(const char *title, const char *msg)
 {
     char *cpy = SDL_strdup(msg);  // in case this is from SDL_GetError() and something changes it.
     if (cpy) {
@@ -32,7 +32,7 @@ static int panic(const char *title, const char *msg)
     SDL_Log("%s", msg);
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, msg, window);
     SDL_free(cpy);
-    return -1;
+    return SDL_APP_FAILURE;
 }
 
 static void SDLCALL cleanup_imgdev(void *userdata, void *value)
@@ -47,10 +47,10 @@ static void SDLCALL cleanup_texture(void *userdata, void *value)
     SDL_DestroyTexture((SDL_Texture *) value);
 }
 
-static int usage(const char *argv0)
+static SDL_AppResult usage(const char *argv0)
 {
     SDL_Log("USAGE: %s [artset] [--database fname] [--dumptheme]", argv0);
-    return -1;
+    return SDL_APP_FAILURE;
 }
 
 static int load_artset(const char *artset)
@@ -58,20 +58,23 @@ static int load_artset(const char *artset)
     SDL_DestroyProperties(artset_properties);
     artset_properties = SDL_CreateProperties();
     if (!artset_properties) {
-        return panic("SDL_CreateProperties failed!", SDL_GetError());
+        panic("SDL_CreateProperties failed!", SDL_GetError());
+        return -1;
     }
 
     ControllerImage_Device *imgdev = ControllerImage_CreateGamepadDeviceByIdString(artset);
     if (!imgdev) {
-        return panic("ControllerImage_CreateGamepadDeviceByIdString failed!", SDL_GetError());
+        panic("ControllerImage_CreateGamepadDeviceByIdString failed!", SDL_GetError());
+        return -1;
     }
     if (SDL_SetPointerPropertyWithCleanup(artset_properties, PROP_IMGDEV, imgdev, cleanup_imgdev, NULL) < 0) {
-        return panic("SDL_SetPointerPropertyWithCleanup failed!", SDL_GetError());
+        panic("SDL_SetPointerPropertyWithCleanup failed!", SDL_GetError());
+        return -1;
     }
     return 0;
 }
 
-int SDL_AppInit(void **appstate, int argc, char *argv[])
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     const char *title = argv[0] ? argv[0] : "test-controllerimage";
     SDL_Surface *surf = NULL;
@@ -92,7 +95,7 @@ int SDL_AppInit(void **appstate, int argc, char *argv[])
     } else if ((gamepad_front_texture = SDL_CreateTextureFromSurface(renderer, surf)) == NULL) {
         panic("Failed to create gamepad texture!", SDL_GetError());
         SDL_DestroySurface(surf);
-        return -1;
+        return SDL_APP_FAILURE;
     }
 
     SDL_DestroySurface(surf);
@@ -142,7 +145,7 @@ int SDL_AppInit(void **appstate, int argc, char *argv[])
 
     if (artset) {
         if (load_artset(artset) < 0) {
-            return -1;
+            return SDL_APP_FAILURE;
         }
     }
 
@@ -153,10 +156,10 @@ int SDL_AppInit(void **appstate, int argc, char *argv[])
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
 
-    return 0;  // we're ready, keep going.
+    return SDL_APP_CONTINUE;  // we're ready, keep going.
 }
 
-int SDL_AppEvent(void *appstate, const SDL_Event *event)
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
     char numstr[64];
     SDL_JoystickID which;
@@ -227,16 +230,16 @@ int SDL_AppEvent(void *appstate, const SDL_Event *event)
             break;
 
         case SDL_EVENT_QUIT:
-            return 1;  // stop app.
+            return SDL_APP_SUCCESS;  // stop app.
 
         case SDL_EVENT_KEY_DOWN:
-            if (event->key.keysym.sym == SDLK_ESCAPE) {
-                return 1;  // stop app.
+            if (event->key.key == SDLK_ESCAPE) {
+                return SDL_APP_SUCCESS;  // stop app.
             }
             break;
     }
 
-    return 0;  // keep going.
+    return SDL_APP_CONTINUE;  // keep going.
 }
 
 static void update_gamepad_textures(SDL_PropertiesID gamepad_props, const int newsize)
@@ -309,7 +312,7 @@ static void render_axis(SDL_Renderer *renderer, SDL_PropertiesID gamepad_props, 
     }
 }
 
-int SDL_AppIterate(void *appstate)
+SDL_AppResult SDL_AppIterate(void *appstate)
 {
     static const char *artsets[] = {
         "xbox360", "xboxone", "xboxseries",
@@ -344,15 +347,15 @@ int SDL_AppIterate(void *appstate)
                 printf("rm -f %s.gif\n", dump_theme_title);
                 printf("ffmpeg -f image2 -framerate 3 -i img%%03d.bmp -i palette001.png -filter_complex \"[0:v][1:v] paletteuse\" -loop 0 %s.gif\n", dump_theme_title);
                 printf("rm -f img*.bmp palette001.png\n");
-                return 1;  // we're done!
+                return SDL_APP_SUCCESS;  // we're done!
             } else if ((imgdev = ControllerImage_CreateGamepadDeviceByIdString(artset)) == NULL) {
                 SDL_Log("ControllerImage_CreateGamepadDeviceByIdString('%s') failed, skipping artset: %s", artset, SDL_GetError());
                 dump_theme++;
-                return 0;  // skip this one, it's probably missing.
+                return SDL_APP_CONTINUE;  // skip this one, it's probably missing.
             } else {
                 ControllerImage_DestroyDevice(imgdev);
                 if (load_artset(artset) < 0) {
-                    return -1;  // we're done! for the wrong reasons!!
+                    return SDL_APP_FAILURE;  // we're done! for the wrong reasons!!
                 }
             }
         }
@@ -444,10 +447,10 @@ int SDL_AppIterate(void *appstate)
 
     SDL_RenderPresent(renderer);
 
-    return 0;  // keep going.
+    return SDL_APP_CONTINUE;  // keep going.
 }
 
-void SDL_AppQuit(void *appstate)
+void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
     SDL_DestroyProperties(artset_properties);
     SDL_DestroyTexture(gamepad_front_texture);
