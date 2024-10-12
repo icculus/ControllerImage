@@ -435,8 +435,15 @@ void SDL_AppQuit(void *appstate)
     }
 
     SDL_DestroyTexture(press_x_to_doubt);
+    SDL_DestroyTexture(press_f_to_pay_respects);
+
     SDL_DestroyTexture(miles_ps5);
     SDL_DestroyTexture(miles_xbox);
+
+    SDL_DestroyTexture(how_to_use0);
+    SDL_DestroyTexture(how_to_use1);
+    SDL_DestroyTexture(how_to_use2);
+    SDL_DestroyTexture(how_to_use3);
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
