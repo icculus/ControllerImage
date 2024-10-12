@@ -65,8 +65,8 @@ static int load_artset(const char *artset)
     if (!imgdev) {
         return panic("ControllerImage_CreateGamepadDeviceByIdString failed!", SDL_GetError());
     }
-    if (SDL_SetPropertyWithCleanup(artset_properties, PROP_IMGDEV, imgdev, cleanup_imgdev, NULL) < 0) {
-        return panic("SDL_SetPropertyWithCleanup failed!", SDL_GetError());
+    if (SDL_SetPointerPropertyWithCleanup(artset_properties, PROP_IMGDEV, imgdev, cleanup_imgdev, NULL) < 0) {
+        return panic("SDL_SetPointerPropertyWithCleanup failed!", SDL_GetError());
     }
     return 0;
 }
@@ -177,13 +177,13 @@ int SDL_AppEvent(void *appstate, const SDL_Event *event)
                 } else {
                     ControllerImage_Device *imgdev = ControllerImage_CreateGamepadDevice(gamepad);
                     if (imgdev) {
-                        const SDL_JoystickGUID guid = SDL_GetGamepadInstanceGUID(which);
+                        const SDL_GUID guid = SDL_GetGamepadGUIDForID(which);
                         char guidstr[64];
                         guidstr[0] = '\0';
                         SDL_GUIDToString(*((SDL_GUID *) &guid), guidstr, sizeof (guidstr));
-                        SDL_Log("Adding gamepad %s ('%s', guid %s)", numstr, SDL_GetGamepadInstanceName(which), guidstr);
+                        SDL_Log("Adding gamepad %s ('%s', guid %s)", numstr, SDL_GetGamepadNameForID(which), guidstr);
                         SDL_Log("ControllerImage device type: %s", ControllerImage_GetDeviceType(imgdev));
-                        SDL_SetPropertyWithCleanup(props, PROP_IMGDEV, imgdev, cleanup_imgdev, NULL);
+                        SDL_SetPointerPropertyWithCleanup(props, PROP_IMGDEV, imgdev, cleanup_imgdev, NULL);
                         current_gamepad = gamepad;
                     }
                 }
@@ -198,7 +198,7 @@ int SDL_AppEvent(void *appstate, const SDL_Event *event)
             }
             which = event->gdevice.which;
             SDL_Log("Removing gamepad %u", (unsigned int) which);
-            gamepad = SDL_GetGamepadFromInstanceID(which);
+            gamepad = SDL_GetGamepadFromID(which);
             if (gamepad) {
                 if (gamepad == current_gamepad) {
                     current_gamepad = NULL;
@@ -218,7 +218,7 @@ int SDL_AppEvent(void *appstate, const SDL_Event *event)
             }
             // these actually use different parts of the event union, but the `which` field lines up in all of them.
             which = event->gdevice.which;
-            current_gamepad = SDL_GetGamepadFromInstanceID(which);
+            current_gamepad = SDL_GetGamepadFromID(which);
             break;
 
         case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
@@ -249,12 +249,12 @@ static void update_gamepad_textures(SDL_PropertiesID gamepad_props, const int ne
         return;  // already good to go.
     }
 
-    ControllerImage_Device *imgdev = (ControllerImage_Device *) SDL_GetProperty(gamepad_props, PROP_IMGDEV, NULL);
+    ControllerImage_Device *imgdev = (ControllerImage_Device *) SDL_GetPointerProperty(gamepad_props, PROP_IMGDEV, NULL);
     SDL_assert(imgdev != NULL);
 
     char propname[64];
 
-    for (SDL_GamepadButton i = SDL_GAMEPAD_BUTTON_SOUTH; i < SDL_GAMEPAD_BUTTON_MAX; i++) {
+    for (SDL_GamepadButton i = SDL_GAMEPAD_BUTTON_SOUTH; i < SDL_GAMEPAD_BUTTON_COUNT; i++) {
         int thissize = newsize;
         if ((i >= SDL_GAMEPAD_BUTTON_DPAD_UP) && (i <= SDL_GAMEPAD_BUTTON_DPAD_RIGHT)) {
             thissize *= 2;
@@ -267,10 +267,10 @@ static void update_gamepad_textures(SDL_PropertiesID gamepad_props, const int ne
         SDL_Texture *tex = surf ? SDL_CreateTextureFromSurface(renderer, surf) : NULL;
         SDL_DestroySurface(surf);
         SDL_snprintf(propname, sizeof (propname), PROP_TEXBUTTON_FMT, (int) i);
-        SDL_SetPropertyWithCleanup(gamepad_props, propname, tex, cleanup_texture, NULL);
+        SDL_SetPointerPropertyWithCleanup(gamepad_props, propname, tex, cleanup_texture, NULL);
     }
 
-    for (SDL_GamepadAxis i = SDL_GAMEPAD_AXIS_LEFTX; i < SDL_GAMEPAD_AXIS_MAX; i++) {
+    for (SDL_GamepadAxis i = SDL_GAMEPAD_AXIS_LEFTX; i < SDL_GAMEPAD_AXIS_COUNT; i++) {
         int thissize = newsize;
         if ((i != SDL_GAMEPAD_AXIS_LEFT_TRIGGER) && (i != SDL_GAMEPAD_AXIS_RIGHT_TRIGGER)) {
             thissize *= 2;
@@ -279,7 +279,7 @@ static void update_gamepad_textures(SDL_PropertiesID gamepad_props, const int ne
         SDL_Texture *tex = surf ? SDL_CreateTextureFromSurface(renderer, surf) : NULL;
         SDL_DestroySurface(surf);
         SDL_snprintf(propname, sizeof (propname), PROP_TEXAXIS_FMT, (int) i);
-        SDL_SetPropertyWithCleanup(gamepad_props, propname, tex, cleanup_texture, NULL);
+        SDL_SetPointerPropertyWithCleanup(gamepad_props, propname, tex, cleanup_texture, NULL);
     }
 
     SDL_SetNumberProperty(gamepad_props, PROP_RENDER_SIZE, (Sint64) (int) newsize);
@@ -290,7 +290,7 @@ static void render_button(SDL_Renderer *renderer, SDL_PropertiesID gamepad_props
     SDL_assert(gamepad_props != 0);
     char propname[64];
     SDL_snprintf(propname, sizeof (propname), PROP_TEXBUTTON_FMT, (int) button);
-    SDL_Texture *texture = (SDL_Texture *) SDL_GetProperty(gamepad_props, propname, NULL);
+    SDL_Texture *texture = (SDL_Texture *) SDL_GetPointerProperty(gamepad_props, propname, NULL);
     if (texture) {
         const SDL_FRect dstrect = { x, y, size, size };
         SDL_RenderTexture(renderer, texture, NULL, &dstrect);
@@ -302,7 +302,7 @@ static void render_axis(SDL_Renderer *renderer, SDL_PropertiesID gamepad_props, 
     SDL_assert(gamepad_props != 0);
     char propname[64];
     SDL_snprintf(propname, sizeof (propname), PROP_TEXAXIS_FMT, (int) axis);
-    SDL_Texture *texture = (SDL_Texture *) SDL_GetProperty(gamepad_props, propname, NULL);
+    SDL_Texture *texture = (SDL_Texture *) SDL_GetPointerProperty(gamepad_props, propname, NULL);
     if (texture) {
         const SDL_FRect dstrect = { x, y, size, size };
         SDL_RenderTexture(renderer, texture, NULL, &dstrect);

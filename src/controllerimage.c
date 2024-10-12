@@ -53,11 +53,11 @@ static const SDL_GUID zeroguid;
 typedef struct ControllerImage_Device
 {
     // any of these might be NULL!
-    NSVGimage *axes[SDL_GAMEPAD_AXIS_MAX];
-    NSVGimage *buttons[SDL_GAMEPAD_BUTTON_MAX];
+    NSVGimage *axes[SDL_GAMEPAD_AXIS_COUNT];
+    NSVGimage *buttons[SDL_GAMEPAD_BUTTON_COUNT];
     const char *device_type;
-    char *axes_svg[SDL_GAMEPAD_AXIS_MAX];
-    char *buttons_svg[SDL_GAMEPAD_BUTTON_MAX];
+    char *axes_svg[SDL_GAMEPAD_AXIS_COUNT];
+    char *buttons_svg[SDL_GAMEPAD_BUTTON_COUNT];
     NSVGrasterizer *rasterizer;
 } ControllerImage_Device;
 
@@ -262,7 +262,7 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
             info->items[j].svg = strings[itemimage];
         }
 
-        if (SDL_SetPropertyWithCleanup(DeviceInfoMap, strings[devid], info, CleanupDeviceInfo, NULL) == -1) {
+        if (SDL_SetPointerPropertyWithCleanup(DeviceInfoMap, strings[devid], info, CleanupDeviceInfo, NULL) == -1) {
             goto failed;
         }
 
@@ -286,7 +286,7 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
             // If this fails for some reason, go on without this guid.
 
             // No cleanup function; this is using a string in the StringCache.
-            SDL_SetProperty(GuidToDeviceTypeMap, guidstr, strings[devid]);
+            SDL_SetPointerProperty(GuidToDeviceTypeMap, guidstr, strings[devid]);
 
             // stick a GUID in there that's just the USB VID/PID values, which
             // might catch some variations on the same device.
@@ -297,7 +297,7 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
             vidpid[32] = '\0';   // null-terminate it.
 
             // No cleanup function; this is using a string in the StringCache.
-            SDL_SetProperty(GuidToDeviceTypeMap, vidpid, strings[devid]);
+            SDL_SetPointerProperty(GuidToDeviceTypeMap, vidpid, strings[devid]);
         }
     }
 
@@ -339,7 +339,7 @@ static void CollectGamepadImages(ControllerImage_DeviceInfo *info, char **axes, 
     if (!info) {
         return;
     } else if (info->inherits) {
-        CollectGamepadImages((ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceInfoMap, info->inherits, NULL), axes, buttons);
+        CollectGamepadImages((ControllerImage_DeviceInfo *) SDL_GetPointerProperty(DeviceInfoMap, info->inherits, NULL), axes, buttons);
     }
 
     const ControllerImage_Item *leftxy = NULL;
@@ -372,7 +372,7 @@ static void CollectGamepadImages(ControllerImage_DeviceInfo *info, char **axes, 
         const int axis = (int) SDL_GetGamepadAxisFromString(typestr);
         if (axis != SDL_GAMEPAD_AXIS_INVALID) {
             SDL_assert(axis >= 0);
-            if (axis < SDL_GAMEPAD_AXIS_MAX) {
+            if (axis < SDL_GAMEPAD_AXIS_COUNT) {
                 SDL_free(axes[axis]);  // in case we're overriding an earlier image.
                 axes[axis] = SDL_strdup(item->svg);
             }
@@ -380,7 +380,7 @@ static void CollectGamepadImages(ControllerImage_DeviceInfo *info, char **axes, 
             const int button = (int) SDL_GetGamepadButtonFromString(typestr);
             if (button != SDL_GAMEPAD_BUTTON_INVALID) {
                 SDL_assert(button >= 0);
-                if (button < SDL_GAMEPAD_BUTTON_MAX) {
+                if (button < SDL_GAMEPAD_BUTTON_COUNT) {
                     SDL_free(buttons[button]);  // in case we're overriding an earlier image.
                     buttons[button] = SDL_strdup(item->svg);
                 }
@@ -431,7 +431,7 @@ static ControllerImage_Device *CreateGamepadDeviceFromInfo(ControllerImage_Devic
         return NULL;
     }
 
-    for (int i = 0; i < SDL_GAMEPAD_AXIS_MAX; i++) {
+    for (int i = 0; i < SDL_GAMEPAD_AXIS_COUNT; i++) {
         if (device->axes_svg[i]) {
             char *cpy = SDL_strdup(device->axes_svg[i]);  // nsvgParse mangles the string!
             if (cpy) {
@@ -441,7 +441,7 @@ static ControllerImage_Device *CreateGamepadDeviceFromInfo(ControllerImage_Devic
         }
     }
 
-    for (int i = 0; i < SDL_GAMEPAD_BUTTON_MAX; i++) {
+    for (int i = 0; i < SDL_GAMEPAD_BUTTON_COUNT; i++) {
         if (device->buttons_svg[i]) {
             char *cpy = SDL_strdup(device->buttons_svg[i]);  // nsvgParse mangles the string!
             if (cpy) {
@@ -456,22 +456,22 @@ static ControllerImage_Device *CreateGamepadDeviceFromInfo(ControllerImage_Devic
 
 ControllerImage_Device *ControllerImage_CreateGamepadDeviceByIdString(const char *str)
 {
-    const char *devtype = SDL_GetProperty(GuidToDeviceTypeMap, str, NULL);  // in case it's a GUID.
+    const char *devtype = SDL_GetPointerProperty(GuidToDeviceTypeMap, str, NULL);  // in case it's a GUID.
     if (devtype) {
         str = devtype;
     }
-    return CreateGamepadDeviceFromInfo((ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceInfoMap, str, NULL));
+    return CreateGamepadDeviceFromInfo((ControllerImage_DeviceInfo *) SDL_GetPointerProperty(DeviceInfoMap, str, NULL));
 }
 
 static ControllerImage_DeviceInfo *FindDeviceInfoByGuidStr(const char *guidstr)
 {
-    const char *devtype = SDL_GetProperty(GuidToDeviceTypeMap, guidstr, NULL);
-    return (ControllerImage_DeviceInfo *) (devtype ? SDL_GetProperty(DeviceInfoMap, devtype, NULL) : NULL);
+    const char *devtype = SDL_GetPointerProperty(GuidToDeviceTypeMap, guidstr, NULL);
+    return (ControllerImage_DeviceInfo *) (devtype ? SDL_GetPointerProperty(DeviceInfoMap, devtype, NULL) : NULL);
 }
 
 ControllerImage_Device *ControllerImage_CreateGamepadDeviceByInstance(SDL_JoystickID jsid)
 {
-    const SDL_JoystickGUID guid = SDL_GetGamepadInstanceGUID(jsid);
+    const SDL_GUID guid = SDL_GetGamepadGUIDForID(jsid);
     if (SDL_memcmp(&guid, &zeroguid, sizeof (SDL_GUID)) == 0) {
         return NULL;
     }
@@ -490,25 +490,25 @@ ControllerImage_Device *ControllerImage_CreateGamepadDeviceByInstance(SDL_Joysti
         SDL_GUID vidpidguid;
         SDL_zero(vidpidguid);
         Uint16 *guid16 = (Uint16 *) vidpidguid.data;
-        // you have to use SDL_GetGamepadInstance* instead of just the VID/PID chunks of the GUID,
+        // you have to use SDL_GetGamepad*ForID instead of just the VID/PID chunks of the GUID,
         // since SDL will give you info for some drivers that isn't representd in the GUID!
-        guid16[2] = SDL_Swap16LE(SDL_GetGamepadInstanceVendor(jsid));
-        guid16[4] = SDL_Swap16LE(SDL_GetGamepadInstanceProduct(jsid));
+        guid16[2] = SDL_Swap16LE(SDL_GetGamepadVendorForID(jsid));
+        guid16[4] = SDL_Swap16LE(SDL_GetGamepadProductForID(jsid));
         SDL_GUIDToString(vidpidguid, guidstr, sizeof (guidstr));
         info = FindDeviceInfoByGuidStr(guidstr);
     }
 
     if (!info) {
         // since these are the most common things, we might have a fallback specific to this device type...
-        const char *typestr = SDL_GetGamepadStringForType(SDL_GetGamepadInstanceType(jsid));
+        const char *typestr = SDL_GetGamepadStringForType(SDL_GetGamepadTypeForID(jsid));
         if (typestr) {
-            info = (ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceInfoMap, typestr, NULL);
+            info = (ControllerImage_DeviceInfo *) SDL_GetPointerProperty(DeviceInfoMap, typestr, NULL);
         }
     }
 
     if (!info) {
         // !!! FIXME: the most-likely-default string should be in the database, so this can work in later times when likely defaults change by supplying a new database and without updating the code.
-        info = (ControllerImage_DeviceInfo *) SDL_GetProperty(DeviceInfoMap, "xbox360", NULL);  // if all else fails, this is probably most likely to match...
+        info = (ControllerImage_DeviceInfo *) SDL_GetPointerProperty(DeviceInfoMap, "xbox360", NULL);  // if all else fails, this is probably most likely to match...
     }
 
     return CreateGamepadDeviceFromInfo(info);
@@ -525,7 +525,7 @@ const char *ControllerImage_GetDeviceType(ControllerImage_Device *device)
 
 ControllerImage_Device *ControllerImage_CreateGamepadDevice(SDL_Gamepad *gamepad)
 {
-    const SDL_JoystickID jsid = SDL_GetGamepadInstanceID(gamepad);
+    const SDL_JoystickID jsid = SDL_GetGamepadID(gamepad);
     return jsid ? ControllerImage_CreateGamepadDeviceByInstance(jsid) : NULL;
 }
 
@@ -533,11 +533,11 @@ void ControllerImage_DestroyDevice(ControllerImage_Device *device)
 {
     if (device) {
         nsvgDeleteRasterizer(device->rasterizer);
-        for (int i = 0; i < SDL_GAMEPAD_AXIS_MAX; i++) {
+        for (int i = 0; i < SDL_GAMEPAD_AXIS_COUNT; i++) {
 	        nsvgDelete(device->axes[i]);
             SDL_free(device->axes_svg[i]);
         }
-        for (int i = 0; i < SDL_GAMEPAD_BUTTON_MAX; i++) {
+        for (int i = 0; i < SDL_GAMEPAD_BUTTON_COUNT; i++) {
 	        nsvgDelete(device->buttons[i]);
             SDL_free(device->buttons_svg[i]);
         }
@@ -563,7 +563,7 @@ static SDL_Surface *RasterizeImage(NSVGrasterizer *rasterizer, NSVGimage *image,
 SDL_Surface *ControllerImage_CreateSurfaceForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis, int size)
 {
     const int iaxis = (int) axis;
-    if ((iaxis < 0) || (iaxis >= SDL_GAMEPAD_AXIS_MAX)) {
+    if ((iaxis < 0) || (iaxis >= SDL_GAMEPAD_AXIS_COUNT)) {
         SDL_InvalidParamError("axis");
         return NULL;
     }
@@ -578,7 +578,7 @@ SDL_Surface *ControllerImage_CreateSurfaceForAxis(ControllerImage_Device *device
 SDL_Surface *ControllerImage_CreateSurfaceForButton(ControllerImage_Device *device, SDL_GamepadButton button, int size)
 {
     const int ibutton = (int) button;
-    if ((ibutton < 0) || (ibutton >= SDL_GAMEPAD_BUTTON_MAX)) {
+    if ((ibutton < 0) || (ibutton >= SDL_GAMEPAD_BUTTON_COUNT)) {
         SDL_InvalidParamError("button");
         return NULL;
     }
@@ -593,7 +593,7 @@ SDL_Surface *ControllerImage_CreateSurfaceForButton(ControllerImage_Device *devi
 const char *ControllerImage_GetSVGForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis)
 {
     const int iaxis = (int) axis;
-    if ((iaxis < 0) || (iaxis >= SDL_GAMEPAD_AXIS_MAX)) {
+    if ((iaxis < 0) || (iaxis >= SDL_GAMEPAD_AXIS_COUNT)) {
         SDL_InvalidParamError("axis");
         return NULL;
     }
@@ -607,7 +607,7 @@ const char *ControllerImage_GetSVGForAxis(ControllerImage_Device *device, SDL_Ga
 const char *ControllerImage_GetSVGForButton(ControllerImage_Device *device, SDL_GamepadButton button)
 {
     const int ibutton = (int) button;
-    if ((ibutton < 0) || (ibutton >= SDL_GAMEPAD_BUTTON_MAX)) {
+    if ((ibutton < 0) || (ibutton >= SDL_GAMEPAD_BUTTON_COUNT)) {
         SDL_InvalidParamError("button");
         return NULL;
     }
