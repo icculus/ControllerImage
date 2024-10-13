@@ -67,7 +67,7 @@ static int load_artset(const char *artset)
         panic("ControllerImage_CreateGamepadDeviceByIdString failed!", SDL_GetError());
         return -1;
     }
-    if (SDL_SetPointerPropertyWithCleanup(artset_properties, PROP_IMGDEV, imgdev, cleanup_imgdev, NULL) < 0) {
+    if (!SDL_SetPointerPropertyWithCleanup(artset_properties, PROP_IMGDEV, imgdev, cleanup_imgdev, NULL)) {
         panic("SDL_SetPointerPropertyWithCleanup failed!", SDL_GetError());
         return -1;
     }
