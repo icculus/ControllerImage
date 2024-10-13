@@ -537,11 +537,11 @@ void ControllerImage_DestroyDevice(ControllerImage_Device *device)
     if (device) {
         nsvgDeleteRasterizer(device->rasterizer);
         for (int i = 0; i < SDL_GAMEPAD_AXIS_COUNT; i++) {
-	        nsvgDelete(device->axes[i]);
+            nsvgDelete(device->axes[i]);
             SDL_free(device->axes_svg[i]);
         }
         for (int i = 0; i < SDL_GAMEPAD_BUTTON_COUNT; i++) {
-	        nsvgDelete(device->buttons[i]);
+            nsvgDelete(device->buttons[i]);
             SDL_free(device->buttons_svg[i]);
         }
     }
@@ -559,7 +559,7 @@ static SDL_Surface *RasterizeImage(NSVGrasterizer *rasterizer, NSVGimage *image,
     const float scale = (float)size / image->width;
 
     SDL_assert(rasterizer != NULL);
-	nsvgRasterize(rasterizer, image, 0.0f, 0.0f, scale, (unsigned char *) surface->pixels, size, size, size * 4);
+    nsvgRasterize(rasterizer, image, 0.0f, 0.0f, scale, (unsigned char *) surface->pixels, size, size, size * 4);
     return surface;
 }
 
