@@ -54,12 +54,12 @@ extern SDL_DECLSPEC ControllerImage_Device * SDLCALL ControllerImage_CreateGamep
 
 extern SDL_DECLSPEC void SDLCALL ControllerImage_DestroyDevice(ControllerImage_Device *device);
 
-extern SDL_DECLSPEC const char *ControllerImage_GetDeviceType(ControllerImage_Device *device);
-extern SDL_DECLSPEC SDL_Surface *ControllerImage_CreateSurfaceForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis, int size);
-extern SDL_DECLSPEC SDL_Surface *ControllerImage_CreateSurfaceForButton(ControllerImage_Device *device, SDL_GamepadButton button, int size);
+extern SDL_DECLSPEC const char * SDLCALL ControllerImage_GetDeviceType(ControllerImage_Device *device);
+extern SDL_DECLSPEC SDL_Surface * SDLCALL ControllerImage_CreateSurfaceForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis, int size);
+extern SDL_DECLSPEC SDL_Surface * SDLCALL ControllerImage_CreateSurfaceForButton(ControllerImage_Device *device, SDL_GamepadButton button, int size);
 
-extern SDL_DECLSPEC const char *ControllerImage_GetSVGForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis);
-extern SDL_DECLSPEC const char *ControllerImage_GetSVGForButton(ControllerImage_Device *device, SDL_GamepadButton button);
+extern SDL_DECLSPEC const char * SDLCALL ControllerImage_GetSVGForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis);
+extern SDL_DECLSPEC const char * SDLCALL ControllerImage_GetSVGForButton(ControllerImage_Device *device, SDL_GamepadButton button);
 
 extern SDL_DECLSPEC void SDLCALL ControllerImage_Quit(void);
 
