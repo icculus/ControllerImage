@@ -105,6 +105,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     window = SDL_CreateWindow(argv[0], winw, winh, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
     renderer = SDL_CreateRenderer(window, NULL);
+    SDL_SetRenderVSync(renderer, 1);
 
     ControllerImage_Init();
 
