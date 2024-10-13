@@ -565,6 +565,10 @@ static SDL_Surface *RasterizeImage(NSVGrasterizer *rasterizer, NSVGimage *image,
 
 SDL_Surface *ControllerImage_CreateSurfaceForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis, int size)
 {
+    if (!device) {
+        SDL_InvalidParamError("device");
+        return NULL;
+    }
     const int iaxis = (int) axis;
     if ((iaxis < 0) || (iaxis >= SDL_GAMEPAD_AXIS_COUNT)) {
         SDL_InvalidParamError("axis");
@@ -580,6 +584,10 @@ SDL_Surface *ControllerImage_CreateSurfaceForAxis(ControllerImage_Device *device
 
 SDL_Surface *ControllerImage_CreateSurfaceForButton(ControllerImage_Device *device, SDL_GamepadButton button, int size)
 {
+    if (!device) {
+        SDL_InvalidParamError("device");
+        return NULL;
+    }
     const int ibutton = (int) button;
     if ((ibutton < 0) || (ibutton >= SDL_GAMEPAD_BUTTON_COUNT)) {
         SDL_InvalidParamError("button");
@@ -595,6 +603,10 @@ SDL_Surface *ControllerImage_CreateSurfaceForButton(ControllerImage_Device *devi
 
 const char *ControllerImage_GetSVGForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis)
 {
+    if (!device) {
+        SDL_InvalidParamError("device");
+        return NULL;
+    }
     const int iaxis = (int) axis;
     if ((iaxis < 0) || (iaxis >= SDL_GAMEPAD_AXIS_COUNT)) {
         SDL_InvalidParamError("axis");
@@ -609,6 +621,10 @@ const char *ControllerImage_GetSVGForAxis(ControllerImage_Device *device, SDL_Ga
 
 const char *ControllerImage_GetSVGForButton(ControllerImage_Device *device, SDL_GamepadButton button)
 {
+    if (!device) {
+        SDL_InvalidParamError("device");
+        return NULL;
+    }
     const int ibutton = (int) button;
     if ((ibutton < 0) || (ibutton >= SDL_GAMEPAD_BUTTON_COUNT)) {
         SDL_InvalidParamError("button");
