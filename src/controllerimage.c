@@ -183,7 +183,8 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
     Uint16 version = 0;
 
     if (!DeviceInfoMap) {
-        return SDL_SetError("Not initialized");
+        SDL_SetError("Not initialized");
+        return -1;
     } else if (buflen < 20) {
         goto bogus_data;
     } else if (SDL_memcmp(magic, buf, sizeof (magic)) != 0) {
@@ -191,7 +192,8 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
     } else if (!readui16(&ptr, &buflen, &version)) {
         return -1;
     } else if (version > CONTROLLERIMAGE_CURRENT_DATAVER) {
-        return SDL_SetError("Unsupported data version; upgrade your copy of ControllerImage?");
+        SDL_SetError("Unsupported data version; upgrade your copy of ControllerImage?");
+        return -1;
     } else if (!readui16(&ptr, &buflen, &num_strings)) {
         return -1;
     } else if ((strings = (char **) SDL_calloc(num_strings, sizeof (char *))) == NULL) {
@@ -262,7 +264,7 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
             info->items[j].svg = strings[itemimage];
         }
 
-        if (SDL_SetPointerPropertyWithCleanup(DeviceInfoMap, strings[devid], info, CleanupDeviceInfo, NULL) == -1) {
+        if (!SDL_SetPointerPropertyWithCleanup(DeviceInfoMap, strings[devid], info, CleanupDeviceInfo, NULL)) {
             goto failed;
         }
 
@@ -319,7 +321,8 @@ int ControllerImage_AddDataFromIOStream(SDL_IOStream *iostrm, bool freeio)
     int retval = 0;
 
     if (!iostrm) {
-        return SDL_InvalidParamError("iostrm");
+        SDL_InvalidParamError("iostrm");
+        return -1;
     }
 
     buf = (Uint8 *) SDL_LoadFile_IO(iostrm, &buflen, freeio);
