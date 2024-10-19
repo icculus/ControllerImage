@@ -53,25 +53,25 @@ static SDL_AppResult usage(const char *argv0)
     return SDL_APP_FAILURE;
 }
 
-static int load_artset(const char *artset)
+static bool load_artset(const char *artset)
 {
     SDL_DestroyProperties(artset_properties);
     artset_properties = SDL_CreateProperties();
     if (!artset_properties) {
         panic("SDL_CreateProperties failed!", SDL_GetError());
-        return -1;
+        return false;
     }
 
     ControllerImage_Device *imgdev = ControllerImage_CreateGamepadDeviceByIdString(artset);
     if (!imgdev) {
         panic("ControllerImage_CreateGamepadDeviceByIdString failed!", SDL_GetError());
-        return -1;
+        return false;
     }
     if (!SDL_SetPointerPropertyWithCleanup(artset_properties, PROP_IMGDEV, imgdev, cleanup_imgdev, NULL)) {
         panic("SDL_SetPointerPropertyWithCleanup failed!", SDL_GetError());
-        return -1;
+        return false;
     }
-    return 0;
+    return true;
 }
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -144,7 +144,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
 
     if (artset) {
-        if (load_artset(artset) < 0) {
+        if (!load_artset(artset)) {
             return SDL_APP_FAILURE;
         }
     }
@@ -355,7 +355,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
                 return SDL_APP_CONTINUE;  // skip this one, it's probably missing.
             } else {
                 ControllerImage_DestroyDevice(imgdev);
-                if (load_artset(artset) < 0) {
+                if (!load_artset(artset)) {
                     return SDL_APP_FAILURE;  // we're done! for the wrong reasons!!
                 }
             }
