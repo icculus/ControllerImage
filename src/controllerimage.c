@@ -86,19 +86,19 @@ int ControllerImage_GetVersion(void)
     return CONTROLLERIMAGE_VERSION;
 }
 
-int ControllerImage_Init(void)
+bool ControllerImage_Init(void)
 {
     DeviceInfoMap = SDL_CreateProperties();
     if (!DeviceInfoMap) {
-        return -1;
+        return false;
     }
     GuidToDeviceTypeMap = SDL_CreateProperties();
     if (!GuidToDeviceTypeMap) {
         SDL_DestroyProperties(DeviceInfoMap);
         DeviceInfoMap = 0;
-        return -1;
+        return false;
     }
-    return 0;
+    return true;
 }
 
 void ControllerImage_Quit(void)
@@ -151,15 +151,13 @@ static bool readstr(const Uint8 **_ptr, size_t *_buflen, char **_str)
         }
     }
 
-    SDL_SetError("Unexpected end of data");
-    return false;
+    return SDL_SetError("Unexpected end of data");
 }
 
 static bool readui16(const Uint8 **_ptr, size_t *_buflen, Uint16 *_ui16)
 {
     if (*_buflen < 2) {
-        SDL_SetError("Unexpected end of data");
-        return false;
+        return SDL_SetError("Unexpected end of data");
     }
 
     const Uint8 *ptr = *_ptr;
@@ -174,7 +172,7 @@ static void SDLCALL CleanupDeviceInfo(void *userdata, void *value)
     SDL_free(value);
 }
 
-int ControllerImage_AddData(const void *buf, size_t buflen)
+bool ControllerImage_AddData(const void *buf, size_t buflen)
 {
     const Uint8 *ptr = ((const Uint8 *) buf) + sizeof (magic);
     char **strings = NULL;
@@ -183,21 +181,19 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
     Uint16 version = 0;
 
     if (!DeviceInfoMap) {
-        SDL_SetError("Not initialized");
-        return -1;
+        return SDL_SetError("Not initialized");
     } else if (buflen < 20) {
         goto bogus_data;
     } else if (SDL_memcmp(magic, buf, sizeof (magic)) != 0) {
         goto bogus_data;
     } else if (!readui16(&ptr, &buflen, &version)) {
-        return -1;
+        return false;
     } else if (version > CONTROLLERIMAGE_CURRENT_DATAVER) {
-        SDL_SetError("Unsupported data version; upgrade your copy of ControllerImage?");
-        return -1;
+        return SDL_SetError("Unsupported data version; upgrade your copy of ControllerImage?");
     } else if (!readui16(&ptr, &buflen, &num_strings)) {
-        return -1;
+        return false;
     } else if ((strings = (char **) SDL_calloc(num_strings, sizeof (char *))) == NULL) {
-        return -1;
+        return false;
     }
 
     for (Uint16 i = 0; i < num_strings; i++) {
@@ -304,37 +300,36 @@ int ControllerImage_AddData(const void *buf, size_t buflen)
     }
 
     SDL_free(strings);  // the array! the actual strings are stored in StringCache!
-    return 0;
+    return true;
 
 bogus_data:
     SDL_SetError("Bogus data");
 
 failed:
     SDL_free(strings);
-    return -1;
+    return false;
 }
 
-int ControllerImage_AddDataFromIOStream(SDL_IOStream *iostrm, bool freeio)
+bool ControllerImage_AddDataFromIOStream(SDL_IOStream *iostrm, bool freeio)
 {
     Uint8 *buf = NULL;
     size_t buflen = 0;
-    int retval = 0;
+    bool retval = false;
 
     if (!iostrm) {
-        SDL_InvalidParamError("iostrm");
-        return -1;
+        return SDL_InvalidParamError("iostrm");
     }
 
     buf = (Uint8 *) SDL_LoadFile_IO(iostrm, &buflen, freeio);
-    retval = buf ? ControllerImage_AddData(buf, buflen) : -1;
+    retval = buf ? ControllerImage_AddData(buf, buflen) : false;
     SDL_free(buf);
     return retval;
 }
 
-int ControllerImage_AddDataFromFile(const char *fname)
+bool ControllerImage_AddDataFromFile(const char *fname)
 {
     SDL_IOStream *iostrm = SDL_IOFromFile(fname, "rb");
-    return iostrm ? ControllerImage_AddDataFromIOStream(iostrm, true) : -1;
+    return iostrm ? ControllerImage_AddDataFromIOStream(iostrm, true) : false;
 }
 
 static void CollectGamepadImages(ControllerImage_DeviceInfo *info, char **axes, char **buttons)

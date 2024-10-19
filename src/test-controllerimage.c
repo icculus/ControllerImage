@@ -84,7 +84,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
         return panic("SDL_Init failed!", SDL_GetError());
-    } else if (ControllerImage_Init() < 0) {
+    } else if (!ControllerImage_Init()) {
         return panic("ControllerImage_Init failed!", SDL_GetError());
     } else if ((window = SDL_CreateWindow(title, winw, winh, SDL_WINDOW_RESIZABLE|SDL_WINDOW_HIDDEN)) == NULL) {
         return panic("SDL_CreateWindow failed!", SDL_GetError());
@@ -121,7 +121,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
                 if (arg == NULL) {
                     return usage(argv[0]);
                 }
-                if (ControllerImage_AddDataFromFile(arg) < 0) {
+                if (!ControllerImage_AddDataFromFile(arg)) {
                     return panic("ControllerImage_AddDataFromFile failed!", SDL_GetError());
                 }
                 added_database = true;
@@ -138,7 +138,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
 
     if (!added_database) {
-        if (ControllerImage_AddDataFromFile("controllerimage-standard.bin") < 0) {
+        if (!ControllerImage_AddDataFromFile("controllerimage-standard.bin")) {
             return panic("ControllerImage_AddDataFromFile failed!", SDL_GetError());
         }
     }

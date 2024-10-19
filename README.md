@@ -31,14 +31,14 @@ and offer artwork in the public domain, please get in touch.
   don't want to.
 - In your app near startup (preferably after SDL_Init)...
   ```c
-  if (ControllerImage_Init() == -1) {
+  if (!ControllerImage_Init()) {
       SDL_Log("ControllerImage_Init() failed! why='%s'", SDL_GetError());
   }
   ```
 - Load in the controller and image data...
   ```c
   // there are also versions that can load from an SDL_IOStream or a memory buffer...
-  if (ControllerImage_AddDataFromFile("controllerimages-standard.bin") == -1) {
+  if (!ControllerImage_AddDataFromFile("controllerimages-standard.bin")) {
       SDL_Log("ControllerImage_AddDataFromFile() failed! why='%s'", SDL_GetError());
   }
   ```
