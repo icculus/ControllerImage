@@ -342,6 +342,9 @@ static void CollectGamepadImages(ControllerImage_DeviceInfo *info, char **axes, 
 
     const ControllerImage_Item *leftxy = NULL;
     const ControllerImage_Item *rightxy = NULL;
+    bool axes_present[SDL_GAMEPAD_AXIS_COUNT];
+
+    SDL_zeroa(axes_present);
 
     const int total = info->num_items;
     for (int i = 0; i < total; i++) {
@@ -373,6 +376,7 @@ static void CollectGamepadImages(ControllerImage_DeviceInfo *info, char **axes, 
             if (axis < SDL_GAMEPAD_AXIS_COUNT) {
                 SDL_free(axes[axis]);  // in case we're overriding an earlier image.
                 axes[axis] = SDL_strdup(item->svg);
+                axes_present[axis] = true;
             }
         } else {
             const int button = (int) SDL_GetGamepadButtonFromString(typestr);
@@ -387,19 +391,23 @@ static void CollectGamepadImages(ControllerImage_DeviceInfo *info, char **axes, 
 
         // If there isn't a separate image for [left|right][x|y], see if there's a [left|right]xy fallback...
         if (leftxy) {
-            if (!axes[SDL_GAMEPAD_AXIS_LEFTX]) {
+            if (!axes_present[SDL_GAMEPAD_AXIS_LEFTX]) {
+                SDL_free(axes[SDL_GAMEPAD_AXIS_LEFTX]);
                 axes[SDL_GAMEPAD_AXIS_LEFTX] = SDL_strdup(leftxy->svg);
             }
-            if (!axes[SDL_GAMEPAD_AXIS_LEFTY]) {
+            if (!axes_present[SDL_GAMEPAD_AXIS_LEFTY]) {
+                SDL_free(axes[SDL_GAMEPAD_AXIS_LEFTY]);
                 axes[SDL_GAMEPAD_AXIS_LEFTY] = SDL_strdup(leftxy->svg);
             }
         }
 
         if (rightxy) {
-            if (!axes[SDL_GAMEPAD_AXIS_RIGHTX]) {
+            if (!axes_present[SDL_GAMEPAD_AXIS_RIGHTX]) {
+                SDL_free(axes[SDL_GAMEPAD_AXIS_RIGHTX]);
                 axes[SDL_GAMEPAD_AXIS_RIGHTX] = SDL_strdup(rightxy->svg);
             }
-            if (!axes[SDL_GAMEPAD_AXIS_RIGHTY]) {
+            if (!axes_present[SDL_GAMEPAD_AXIS_RIGHTY]) {
+                SDL_free(axes[SDL_GAMEPAD_AXIS_RIGHTY]);
                 axes[SDL_GAMEPAD_AXIS_RIGHTY] = SDL_strdup(rightxy->svg);
             }
         }
