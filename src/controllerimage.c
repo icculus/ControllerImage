@@ -388,28 +388,28 @@ static void CollectGamepadImages(ControllerImage_DeviceInfo *info, char **axes, 
                 }
             }
         }
+    }
 
-        // If there isn't a separate image for [left|right][x|y], see if there's a [left|right]xy fallback...
-        if (leftxy) {
-            if (!axes_present[SDL_GAMEPAD_AXIS_LEFTX]) {
-                SDL_free(axes[SDL_GAMEPAD_AXIS_LEFTX]);
-                axes[SDL_GAMEPAD_AXIS_LEFTX] = SDL_strdup(leftxy->svg);
-            }
-            if (!axes_present[SDL_GAMEPAD_AXIS_LEFTY]) {
-                SDL_free(axes[SDL_GAMEPAD_AXIS_LEFTY]);
-                axes[SDL_GAMEPAD_AXIS_LEFTY] = SDL_strdup(leftxy->svg);
-            }
+    // If there isn't a separate image for [left|right][x|y], see if there's a [left|right]xy fallback...
+    if (leftxy) {
+        if (!axes_present[SDL_GAMEPAD_AXIS_LEFTX]) {
+            SDL_free(axes[SDL_GAMEPAD_AXIS_LEFTX]);
+            axes[SDL_GAMEPAD_AXIS_LEFTX] = SDL_strdup(leftxy->svg);
         }
+        if (!axes_present[SDL_GAMEPAD_AXIS_LEFTY]) {
+            SDL_free(axes[SDL_GAMEPAD_AXIS_LEFTY]);
+            axes[SDL_GAMEPAD_AXIS_LEFTY] = SDL_strdup(leftxy->svg);
+        }
+    }
 
-        if (rightxy) {
-            if (!axes_present[SDL_GAMEPAD_AXIS_RIGHTX]) {
-                SDL_free(axes[SDL_GAMEPAD_AXIS_RIGHTX]);
-                axes[SDL_GAMEPAD_AXIS_RIGHTX] = SDL_strdup(rightxy->svg);
-            }
-            if (!axes_present[SDL_GAMEPAD_AXIS_RIGHTY]) {
-                SDL_free(axes[SDL_GAMEPAD_AXIS_RIGHTY]);
-                axes[SDL_GAMEPAD_AXIS_RIGHTY] = SDL_strdup(rightxy->svg);
-            }
+    if (rightxy) {
+        if (!axes_present[SDL_GAMEPAD_AXIS_RIGHTX]) {
+            SDL_free(axes[SDL_GAMEPAD_AXIS_RIGHTX]);
+            axes[SDL_GAMEPAD_AXIS_RIGHTX] = SDL_strdup(rightxy->svg);
+        }
+        if (!axes_present[SDL_GAMEPAD_AXIS_RIGHTY]) {
+            SDL_free(axes[SDL_GAMEPAD_AXIS_RIGHTY]);
+            axes[SDL_GAMEPAD_AXIS_RIGHTY] = SDL_strdup(rightxy->svg);
         }
     }
 }
