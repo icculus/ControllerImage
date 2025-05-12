@@ -10,7 +10,7 @@ jobs:
       matrix:
         platform:
         - { name: Linux,   os: ubuntu-latest }
-        - { name: Windows, os: windows-latest }
+        - { name: Windows, os: windows-2025 }
         - { name: MacOS,   os: macos-latest }
     steps:
     - name: Set up SDL
