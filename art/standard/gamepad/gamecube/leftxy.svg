@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="100px"
+   height="100px"
+   preserveAspectRatio="none"
+   version="1.1"
+   viewBox="0 0 100 100"
+   id="svg16"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs20" />
+  <path
+     style="fill:#888a85;stroke:#151515;stroke-width:2.25159142;stroke-linecap:round;stroke-dasharray:none;stroke-opacity:1"
+     id="path232"
+     d="m -33.555269,53.388225 -17.464927,-7.007811 -7.394297,-17.304839 7.007811,-17.464927 17.304839,-7.3942969 17.464927,7.0078109 7.3942969,17.304839 -7.0078109,17.464927 z"
+     transform="matrix(1.7765217,0,0,1.7765208,110.09717,-1.167879)" />
+  <path
+     d="m 70.7475,29.3025 c -5.69997,-5.73003 -12.6153,-8.595 -20.745,-8.595 -8.1,0 -15.0003,2.86497 -20.7,8.595 -3.42153,3.40362 -5.82156,7.22862 -7.2,11.475 -0.92997,2.88666 -1.395,5.96169 -1.395,9.225 0,3.27537 0.465003,6.3504 1.395,9.225 1.37844,4.27644 3.77847,8.11638 7.2,11.52 5.69997,5.73003 12.6,8.595 20.7,8.595 8.12997,0 15.0453,-2.86497 20.745,-8.595 5.73003,-5.69997 8.595,-12.6153 8.595,-20.745 0,-8.1 -2.86497,-15.0003 -8.595,-20.7"
+     fill="#4e4e4e"
+     id="path4"
+     style="fill:#d3d7cf;stroke-width:0.9" />
+  <path
+     d="m 50.0025,20.7075 q 12.195,0 20.745,8.595 8.595,8.55 8.595,20.7 0,12.195 -8.595,20.745 -8.55,8.595 -20.745,8.595 -12.15,0 -20.7,-8.595 -5.13225,-5.10543 -7.2,-11.52 -1.395,-4.3119 -1.395,-9.225 0,-4.89501 1.395,-9.2025 2.06775,-6.39207 7.2,-11.4975 8.55,-8.595 20.7,-8.595 z"
+     fill="none"
+     stroke="#606060"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     stroke-width="3.6"
+     id="path14"
+     style="stroke:#babdb6;fill:#d3d7cf" />
+  <circle
+     style="fill:none;stroke:#babdb6;stroke-width:2;stroke-linecap:round;stroke-dasharray:none"
+     id="path45304"
+     cx="50"
+     cy="50"
+     r="15" />
+  <circle
+     style="fill:none;stroke:#babdb6;stroke-width:2;stroke-linecap:round;stroke-dasharray:none"
+     id="path45304-3"
+     cx="50"
+     cy="50"
+     r="22" />
+  <circle
+     style="fill:none;stroke:#babdb6;stroke-width:2;stroke-linecap:round;stroke-dasharray:none"
+     id="path45304-5"
+     cx="50"
+     cy="50"
+     r="8" />
+</svg>

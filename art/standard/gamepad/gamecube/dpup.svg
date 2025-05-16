@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="100"
+   height="100"
+   viewBox="0 0 100 100"
+   version="1.1"
+   id="svg97779"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs97776" />
+  <g
+     id="layer1">
+    <path
+       id="rect97615"
+       style="fill:#d3d7cf;stroke:#888a85;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       d="m 39.601562,5.1757811 c -1.701622,0 -3.072265,1.370643 -3.072265,3.0722657 V 34.625 H 8.2480468 c -1.7016227,0 -3.0722657,1.370643 -3.0722657,3.072266 v 22.664062 c 0,1.701623 1.370643,3.070313 3.0722657,3.070313 H 36.529297 v 28.320312 c 0,1.701623 1.370643,3.072266 3.072265,3.072266 h 22.664063 c 1.701623,0 3.070313,-1.370643 3.070313,-3.072266 V 63.431641 h 26.416015 c 1.701623,0 3.072266,-1.36869 3.072266,-3.070313 V 37.697266 c 0,-1.701623 -1.370643,-3.072266 -3.072266,-3.072266 H 65.335938 V 8.2480468 c -10e-7,-1.7016227 -1.36869,-3.0722657 -3.070313,-3.0722657 z" />
+    <path
+       style="fill:#babdb6;fill-rule:evenodd;stroke:#babdb6;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       d="m 28.274126,43.932974 -14.815834,6.067024 14.815834,6.067029 z"
+       id="path96892" />
+    <path
+       style="fill:#babdb6;fill-rule:evenodd;stroke:#babdb6;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       d="m 72.345395,43.932974 14.81583,6.067024 -14.81583,6.067029 z"
+       id="path96892-9" />
+    <path
+       style="fill:#babdb6;fill-rule:evenodd;stroke:#babdb6;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       d="M 56.067034,70.555108 49.999996,85.370906 43.932966,70.555108 Z"
+       id="path96892-9-1" />
+    <path
+       style="fill:#888a85;fill-rule:evenodd;stroke:#888a85;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       d="M 56.067034,26.171063 49.999996,11.355258 43.932966,26.171063 Z"
+       id="path96892-9-1-2" />
+    <circle
+       style="fill:#babdb6;stroke:none;stroke-width:3.0495;stroke-linecap:round"
+       id="path96946"
+       cx="50"
+       cy="50"
+       r="7.5590553" />
+  </g>
+</svg>
