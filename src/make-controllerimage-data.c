@@ -35,11 +35,14 @@
         DirHandle *dirp = (DirHandle *) xmalloc(sizeof (DirHandle));
 
         const size_t slen = strlen(path);
-        WCHAR *wstr = (WCHAR *) xmalloc((slen + 1) * sizeof (WCHAR));
+        WCHAR *wstr = (WCHAR *) xmalloc((slen + 3) * sizeof (WCHAR));
         for (int i = 0; path[i]; i++) {
             wstr[i] = (WCHAR) path[i];
         }
-        wstr[slen] = '\0';
+        // FindFirstFileW accepts a wildcard path (\*); otherwise, it returns only the last part of the path.
+        wstr[slen] = '\\';
+        wstr[slen + 1] = '*';
+        wstr[slen + 2] = '\0';
 
         dirp->handle = FindFirstFileW(wstr, &dirp->data);
         free(wstr);
