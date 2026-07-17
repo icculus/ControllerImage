@@ -90,8 +90,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return panic("SDL_CreateWindow failed!", SDL_GetError());
     } else if ((renderer = SDL_CreateRenderer(window, NULL)) == NULL) {
         return panic("SDL_CreateRenderer failed!", SDL_GetError());
-    } else if ((surf = SDL_LoadBMP("gamepad_front.bmp")) == NULL) {
-        return panic("Failed to load gamepad_front.bmp!", SDL_GetError());
+    } else if ((surf = SDL_LoadPNG("gamepad_front.png")) == NULL) {
+        return panic("Failed to load gamepad_front.png!", SDL_GetError());
     } else if ((gamepad_front_texture = SDL_CreateTextureFromSurface(renderer, surf)) == NULL) {
         panic("Failed to create gamepad texture!", SDL_GetError());
         SDL_DestroySurface(surf);

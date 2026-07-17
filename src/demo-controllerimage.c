@@ -123,7 +123,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     LoadControllerImages(ControllerImage_CreateGamepadDeviceByIdString("ps3"), ps_textures);
 
     SDL_Surface *surf;
-    surf = SDL_LoadBMP("gamepad_front.bmp");
+    surf = SDL_LoadPNG("gamepad_front.png");
     gamepad_front = SDL_CreateTextureFromSurface(renderer, surf);
     SDL_SetTextureScaleMode(gamepad_front, SDL_SCALEMODE_LINEAR);
     SDL_DestroySurface(surf);
