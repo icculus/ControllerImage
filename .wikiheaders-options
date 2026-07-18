@@ -1,0 +1,41 @@
+projectfullname = ControllerImage
+projectshortname = ControllerImage
+incsubdir = src
+wikisubdir =
+#readmesubdir = docs
+apiprefixregex = (ControllerImage_|CONTROLLERIMAGE_)
+mainincludefname = controllerimage.h
+versionfname = src/controllerimage.h
+versionmajorregex = \A\#define\s+CONTROLLERIMAGE_MAJOR_VERSION\s+(\d+)\Z
+versionminorregex = \A\#define\s+CONTROLLERIMAGE_MINOR_VERSION\s+(\d+)\Z
+versionmicroregex = \A\#define\s+CONTROLLERIMAGE_MICRO_VERSION\s+(\d+)\Z
+#apipropertyregex = \A\s*\#\s*define\s+SDL_PROP_
+selectheaderregex = \Acontrollerimage\.h\Z
+wikidocsectionsym = CONTROLLERIMAGE_WIKI_DOCUMENTATION_SECTION
+forceinlinesym = SDL_FORCE_INLINE
+deprecatedsym = SDL_DEPRECATED
+declspecsym = SDL_DECLSPEC
+callconvsym = SDLCALL
+projecturl = https://github.com/icculus/ControllerImage
+wikiurl = https://wiki.icculus.org/
+bugreporturl = https://github.com/icculus/ControllerImage/issues/new
+warn_about_missing = 0
+#wikipreamble = (This is the documentation for SDL3, which is the current stable version. [SDL2](https://wiki.libsdl.org/SDL2/) was the previous version!)
+wikiheaderfiletext = Defined in [<%fname%>](https://github.com/icculus/ControllerImage/blob/main/src/%fname%)
+
+manpageheaderfiletext = Defined in %fname%
+#manpagesymbolfilterregex = \A[US]int\d+\Z
+
+# All SDL_test_* headers become undefined categories, everything else just converts like SDL_audio.h -> Audio
+# A handful of others we fix up in the header itself with /* WIKI CATEGORY: x */ comments.
+#headercategoryeval = s/\ASDL_test_?.*?\.h\Z//; s/\ASDL_?(.*?)\.h\Z/$1/; ucfirst();
+
+quickrefenabled = 1
+quickrefcategoryorder = ControllerImage
+quickreftitle = ControllerImage API Quick Reference
+quickrefurl = https://github.com/icculus/ControllerImage
+quickrefdesc = The latest version of this document can be found at https://wiki.icculus.org/ControllerImage/QuickReference
+#quickrefmacroregex = \A(SDL_PLATFORM_.*|SDL_.*_INTRINSICS|SDL_Atomic...Ref|SDL_assert.*?|SDL_COMPILE_TIME_ASSERT|SDL_arraysize|SDL_Swap[BL]E\d\d|SDL_[a-z]+_cast)\Z
+
+envvarenabled = 0
+
