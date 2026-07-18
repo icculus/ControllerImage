@@ -47,6 +47,8 @@
 #define NANOSVGRAST_IMPLEMENTATION
 #include "nanosvgrast.h"
 
+#define CONTROLLERIMAGE_CURRENT_DATAVER 2
+
 static const char magic[8] = { 'C', 'T', 'I', 'M', 'G', '\r', '\n', '\0' };
 static const SDL_GUID zeroguid;
 
@@ -76,33 +78,53 @@ typedef struct ControllerImage_DeviceInfo
 } ControllerImage_DeviceInfo;
 
 
+static int controllerimage_initialized = 0;
 static SDL_PropertiesID DeviceInfoMap = 0;
 static SDL_PropertiesID GuidToDeviceTypeMap = 0;
 static char **StringCache = NULL;
 static int NumCachedStrings = 0;
 
-int ControllerImage_GetVersion(void)
+int ControllerImage_MaxDatafileVersion(void)
+{
+    return CONTROLLERIMAGE_CURRENT_DATAVER;
+}
+
+int ControllerImage_Version(void)
 {
     return CONTROLLERIMAGE_VERSION;
 }
 
 bool ControllerImage_Init(void)
 {
-    DeviceInfoMap = SDL_CreateProperties();
-    if (!DeviceInfoMap) {
-        return false;
+    if (!controllerimage_initialized) {
+        DeviceInfoMap = SDL_CreateProperties();
+        if (!DeviceInfoMap) {
+            return false;
+        }
+        GuidToDeviceTypeMap = SDL_CreateProperties();
+        if (!GuidToDeviceTypeMap) {
+            SDL_DestroyProperties(DeviceInfoMap);
+            DeviceInfoMap = 0;
+            return false;
+        }
     }
-    GuidToDeviceTypeMap = SDL_CreateProperties();
-    if (!GuidToDeviceTypeMap) {
-        SDL_DestroyProperties(DeviceInfoMap);
-        DeviceInfoMap = 0;
-        return false;
-    }
+    controllerimage_initialized++;
     return true;
 }
 
 void ControllerImage_Quit(void)
 {
+    SDL_assert(controllerimage_initialized >= 0);
+
+    if (controllerimage_initialized <= 0) {
+        return;   // not initialized
+    } else if (controllerimage_initialized > 1) {
+        controllerimage_initialized--;
+        return;  // more refcounts to go.
+    }
+
+    // actually shutting down now.
+
     SDL_DestroyProperties(DeviceInfoMap);
     SDL_DestroyProperties(GuidToDeviceTypeMap);
     DeviceInfoMap = GuidToDeviceTypeMap = 0;
@@ -310,26 +332,23 @@ failed:
     return false;
 }
 
-bool ControllerImage_AddDataFromIOStream(SDL_IOStream *iostrm, bool freeio)
+bool ControllerImage_AddDataFromIOStream(SDL_IOStream *io, bool closeio)
 {
-    Uint8 *buf = NULL;
-    size_t buflen = 0;
-    bool retval = false;
-
-    if (!iostrm) {
-        return SDL_InvalidParamError("iostrm");
+    if (!io) {
+        return SDL_InvalidParamError("io");
     }
 
-    buf = (Uint8 *) SDL_LoadFile_IO(iostrm, &buflen, freeio);
-    retval = buf ? ControllerImage_AddData(buf, buflen) : false;
+    size_t buflen = 0;
+    Uint8 *buf = (Uint8 *) SDL_LoadFile_IO(io, &buflen, closeio);
+    const bool retval = buf ? ControllerImage_AddData(buf, buflen) : false;
     SDL_free(buf);
     return retval;
 }
 
 bool ControllerImage_AddDataFromFile(const char *fname)
 {
-    SDL_IOStream *iostrm = SDL_IOFromFile(fname, "rb");
-    return iostrm ? ControllerImage_AddDataFromIOStream(iostrm, true) : false;
+    SDL_IOStream *io = SDL_IOFromFile(fname, "rb");
+    return io ? ControllerImage_AddDataFromIOStream(io, true) : false;
 }
 
 static void CollectGamepadImages(ControllerImage_DeviceInfo *info, char **axes, char **buttons)
@@ -548,6 +567,30 @@ void ControllerImage_DestroyDevice(ControllerImage_Device *device)
             SDL_free(device->buttons_svg[i]);
         }
     }
+}
+
+bool ControllerImage_DeviceHasArtworkForAxis(ControllerImage_Device *device, SDL_GamepadAxis axis)
+{
+    if (!device) {
+        return NULL;
+    }
+    const int iaxis = (int) axis;
+    if ((iaxis < 0) || (iaxis >= SDL_GAMEPAD_AXIS_COUNT)) {
+        return NULL;
+    }
+    return device->axes[iaxis] != NULL;
+}
+
+bool ControllerImage_DeviceHasArtworkForButton(ControllerImage_Device *device, SDL_GamepadButton button)
+{
+    if (!device) {
+        return NULL;
+    }
+    const int ibutton = (int) button;
+    if ((ibutton < 0) || (ibutton >= SDL_GAMEPAD_BUTTON_COUNT)) {
+        return NULL;
+    }
+    return device->buttons[ibutton] != NULL;
 }
 
 static SDL_Surface *RasterizeImage(NSVGrasterizer *rasterizer, NSVGimage *image, int size)

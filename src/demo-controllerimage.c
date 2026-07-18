@@ -111,7 +111,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     const int compiled = CONTROLLERIMAGE_VERSION;
     SDL_Log("Compiled against ControllerImage %d.%d.%d\n", SDL_VERSIONNUM_MAJOR(compiled), SDL_VERSIONNUM_MINOR(compiled), SDL_VERSIONNUM_MICRO(compiled));
-    const int linked = ControllerImage_GetVersion();
+    const int linked = ControllerImage_Version();
     SDL_Log("Linked against ControllerImage %d.%d.%d\n", SDL_VERSIONNUM_MAJOR(linked), SDL_VERSIONNUM_MINOR(linked), SDL_VERSIONNUM_MICRO(linked));
 
     ControllerImage_AddDataFromFile("controllerimage-standard.bin");
